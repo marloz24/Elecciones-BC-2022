@@ -20,6 +20,7 @@ BC_Gubernatura_2013 <- fread("https://raw.githubusercontent.com/marloz24/marloz2
 BC_Gubernatura_2019 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gubernatura_2019.csv")
 BC_Gubernatura_2021 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gubernatura_2021.csv")
 
+
 #We notice abstention and participation are char variable because of % replace and convert to numeric
 BC_Ayuntamiento_2010 <- data.frame(lapply(BC_Ayuntamiento_2010, function(x) gsub("%", "", x)))
 BC_Ayuntamiento_2013 <- data.frame(lapply(BC_Ayuntamiento_2013, function(x) gsub("%", "", x)))
@@ -37,8 +38,27 @@ BC_Gubernatura_2013 <- data.frame(lapply(BC_Gubernatura_2013, function(x) gsub("
 BC_Gubernatura_2019 <- data.frame(lapply(BC_Gubernatura_2019, function(x) gsub("%", "", x)))
 BC_Gubernatura_2021 <- data.frame(lapply(BC_Gubernatura_2021, function(x) gsub("%", "", x)))
 
-test <- BC_Gubernatura_2021
-test[] <- sapply(BC_Gubernatura_2021[], as.numeric)
+BC_Ayuntamiento_2010[,5:14] <- sapply(BC_Ayuntamiento_2010[,5:14], as.numeric)
+BC_Ayuntamiento_2013[,5:13] <- sapply(BC_Ayuntamiento_2013[,5:13], as.numeric)
+BC_Ayuntamiento_2016[,5:36] <- sapply(BC_Ayuntamiento_2016[,5:36], as.numeric)
+BC_Ayuntamiento_2019[,5:32] <- sapply(BC_Ayuntamiento_2019[,5:32], as.numeric)
+BC_Ayuntamiento_2021[,5:34] <- sapply(BC_Ayuntamiento_2021[,5:34], as.numeric)
+
+BC_Diputados_2010[,5:18] <- sapply(BC_Diputados_2010[,5:18], as.numeric)
+BC_Diputados_2013[,5:13] <- sapply(BC_Diputados_2013[,5:13], as.numeric)
+BC_Diputados_2016[,5:34] <- sapply(BC_Diputados_2016[,5:34], as.numeric)
+BC_Diputados_2019[,5:34] <- sapply(BC_Diputados_2019[,5:34], as.numeric)
+BC_Diputados_2019[,5:31] <- sapply(BC_Diputados_2019[,5:31], as.numeric)
+
+BC_Gubernatura_2013[,5:13] <- sapply(BC_Gubernatura_2013[,5:13], as.numeric)
+BC_Gubernatura_2019[,5:30] <- sapply(BC_Gubernatura_2019[,5:30], as.numeric)
+BC_Gubernatura_2021[,5:29] <- sapply(BC_Gubernatura_2021[,5:29], as.numeric)
+
+# A few NAs have arised, we will convert them to zeros
+BC_Ayuntamiento_2013[is.na(BC_Ayuntamiento_2013)] <- 0
+BC_Diputados_2013[is.na(BC_Diputados_2013)] <- 0
+BC_Diputados_2016[is.na(BC_Diputados_2016)] <- 0
+BC_Gubernatura_2013[is.na(BC_Gubernatura_2013)] <- 0
 
 #Before formatting data we check that results match to those published by IEEBC 
 aggregate(BC_Ayuntamiento_2010$CABC, by=list(Category=BC_Ayuntamiento_2010$MUNICIPIO), FUN=sum)

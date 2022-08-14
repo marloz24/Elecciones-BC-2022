@@ -4,21 +4,21 @@ library(data.table)
 # Data original format was .xlsx with a number of sheets, for personal convenience it was restructured in various single csv
 # After uploading to github, our fist step is to load or data into different tables
 
-BC_Ayuntamiento_2010 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntaminto_2010.csv")
-BC_Ayuntamiento_2013 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntaminto_2013.csv")
-BC_Ayuntamiento_2016 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntaminto_2016.csv")
-BC_Ayuntamiento_2019 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntaminto_2019.csv")
-BC_Ayuntamiento_2021 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntaminto_2021.csv")
+BC_Ayuntamiento_2010 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2010.csv")
+BC_Ayuntamiento_2013 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2013.csv")
+BC_Ayuntamiento_2016 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2016.csv")
+BC_Ayuntamiento_2019 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2019.csv")
+BC_Ayuntamiento_2021 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2021.csv")
 
-BC_Diputados_2010 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2010.csv")
-BC_Diputados_2013 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2013.csv")
-BC_Diputados_2016 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2016.csv")
-BC_Diputados_2019<- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2019.csv")
-BC_Diputados_2021 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2021.csv")
+BC_Diputados_2010 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2010.csv")
+BC_Diputados_2013 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2013.csv")
+BC_Diputados_2016 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2016.csv")
+BC_Diputados_2019 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2019.csv")
+BC_Diputados_2021 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Diputados_2021.csv")
 
-BC_Gubernatura_2013 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gubernatura_2013.csv")
-BC_Gubernatura_2019 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gubernatura_2019.csv")
-BC_Gubernatura_2021 <- fread("https://raw.githubusercontent.com/marloz24/marloz24-Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gubernatura_2021.csv")
+BC_Gubernatura_2013 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gobernatura_2013.csv")
+BC_Gubernatura_2019 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gobernatura_2019.csv")
+BC_Gubernatura_2021 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Gobernatura_2021.csv")
 
 
 #We notice abstention and participation are char variable because of % replace and convert to numeric
@@ -40,14 +40,14 @@ BC_Gubernatura_2021 <- data.frame(lapply(BC_Gubernatura_2021, function(x) gsub("
 
 BC_Ayuntamiento_2010[,5:14] <- sapply(BC_Ayuntamiento_2010[,5:14], as.numeric)
 BC_Ayuntamiento_2013[,5:13] <- sapply(BC_Ayuntamiento_2013[,5:13], as.numeric)
-BC_Ayuntamiento_2016[,5:36] <- sapply(BC_Ayuntamiento_2016[,5:36], as.numeric)
-BC_Ayuntamiento_2019[,5:32] <- sapply(BC_Ayuntamiento_2019[,5:32], as.numeric)
+BC_Ayuntamiento_2016[,5:42] <- sapply(BC_Ayuntamiento_2016[,5:42], as.numeric)
+BC_Ayuntamiento_2019[,5:34] <- sapply(BC_Ayuntamiento_2019[,5:34], as.numeric)
 BC_Ayuntamiento_2021[,5:34] <- sapply(BC_Ayuntamiento_2021[,5:34], as.numeric)
 
-BC_Diputados_2010[,5:18] <- sapply(BC_Diputados_2010[,5:18], as.numeric)
+BC_Diputados_2010[,5:16] <- sapply(BC_Diputados_2010[,5:16], as.numeric)
 BC_Diputados_2013[,5:13] <- sapply(BC_Diputados_2013[,5:13], as.numeric)
-BC_Diputados_2016[,5:34] <- sapply(BC_Diputados_2016[,5:34], as.numeric)
-BC_Diputados_2019[,5:34] <- sapply(BC_Diputados_2019[,5:34], as.numeric)
+BC_Diputados_2016[,5:41] <- sapply(BC_Diputados_2016[,5:41], as.numeric)
+BC_Diputados_2019[,5:32] <- sapply(BC_Diputados_2019[,5:32], as.numeric)
 BC_Diputados_2019[,5:31] <- sapply(BC_Diputados_2019[,5:31], as.numeric)
 
 BC_Gubernatura_2013[,5:13] <- sapply(BC_Gubernatura_2013[,5:13], as.numeric)
@@ -56,10 +56,39 @@ BC_Gubernatura_2021[,5:29] <- sapply(BC_Gubernatura_2021[,5:29], as.numeric)
 
 # A few NAs have arised, we will convert them to zeros
 BC_Ayuntamiento_2013[is.na(BC_Ayuntamiento_2013)] <- 0
-BC_Diputados_2013[is.na(BC_Diputados_2013)] <- 0
-BC_Diputados_2016[is.na(BC_Diputados_2016)] <- 0
-BC_Gubernatura_2013[is.na(BC_Gubernatura_2013)] <- 0
+BC_Ayuntamiento_2016[is.na(BC_Ayuntamiento_2013)] <- 0
+BC_Diputados_2013[is.na(BC_Diputados_2016)] <- 0
 
 #Before formatting data we check that results match to those published by IEEBC 
-aggregate(BC_Ayuntamiento_2010$CABC, by=list(Category=BC_Ayuntamiento_2010$MUNICIPIO), FUN=sum)
-aggregate(BC_Ayuntamiento_2013$`UNIDOS POR BAJA CALIFORNIA`, by=list(Category=BC_Ayuntamiento_2013$MUNICIPIO), FUN=sum)
+aggregate(BC_Ayuntamiento_2010$CABC, by=list(Category = BC_Ayuntamiento_2010$MUNICIPIO), FUN=sum)
+aggregate(BC_Diputados_2010$CABC, by=list(Category=BC_Diputados_2010$MUNICIPIO), FUN=sum)
+
+
+#
+colnames(BC_Ayuntamiento_2010)
+colnames(BC_Diputados_2010)
+#BC_Diputados_2010 <- subset(BC_Diputados_2010, select=-c(V15, V16, V17, V18))
+setnames(BC_Ayuntamiento_2010, old = c("CABC", "CGR", "CRBC"), new = c("PAN + PANAL + PES", "PRI + Verde", "PT + Convergencia"))
+setnames(BC_Diputados_2010, old = c("CABC", "CGR", "CRBC"), new = c("PAN + PANAL + PES", "PRI + Verde", "PT + Convergencia"))
+
+colnames(BC_Ayuntamiento_2013)
+colnames(BC_Diputados_2013)
+colnames(BC_Gubernatura_2013)
+setnames(BC_Ayuntamiento_2013, old = c("UNIDOS.POR.BAJA.CALIFORNIA", "COMPROMISO.POR.BAJA.CALIFORNIA"), 
+         new = c("PAN + PRD + PANAL + PBC", "PRI  + VERDE + PES + PT"))
+setnames(BC_Diputados_2013, old = c("UNIDOS.POR.BAJA.CALIFORNIA", "COMPROMISO.POR.BAJA.CALIFORNIA"), 
+         new = c("PAN + PRD + PANAL + PBC", "PRI  + VERDE + PES + PT"))
+setnames(BC_Gubernatura_2013, old = c("UNIDOS.POR.BAJA.CALIFORNIA", "COMPROMISO.POR.BAJA.CALIFORNIA"), 
+         new = c("PAN + PRD + PANAL + PBC", "PRI  + VERDE + PES + PT"))
+
+colnames(BC_Ayuntamiento_2016)
+colnames(BC_Diputados_2016)
+
+colnames(BC_Ayuntamiento_2019)
+colnames(BC_Diputados_2019)
+colnames(BC_Gubernatura_2019)
+
+colnames(BC_Ayuntamiento_2021)
+colnames(BC_Diputados_2021)
+colnames(BC_Gubernatura_2021)
+

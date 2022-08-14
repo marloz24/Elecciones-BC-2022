@@ -59,36 +59,64 @@ BC_Ayuntamiento_2013[is.na(BC_Ayuntamiento_2013)] <- 0
 BC_Ayuntamiento_2016[is.na(BC_Ayuntamiento_2013)] <- 0
 BC_Diputados_2013[is.na(BC_Diputados_2016)] <- 0
 
-#Before formatting data we check that results match to those published by IEEBC 
-aggregate(BC_Ayuntamiento_2010$CABC, by=list(Category = BC_Ayuntamiento_2010$MUNICIPIO), FUN=sum)
-aggregate(BC_Diputados_2010$CABC, by=list(Category=BC_Diputados_2010$MUNICIPIO), FUN=sum)
-
-
 #
 colnames(BC_Ayuntamiento_2010)
 colnames(BC_Diputados_2010)
-#BC_Diputados_2010 <- subset(BC_Diputados_2010, select=-c(V15, V16, V17, V18))
-setnames(BC_Ayuntamiento_2010, old = c("CABC", "CGR", "CRBC"), new = c("PAN + PANAL + PES", "PRI + Verde", "PT + Convergencia"))
-setnames(BC_Diputados_2010, old = c("CABC", "CGR", "CRBC"), new = c("PAN + PANAL + PES", "PRI + Verde", "PT + Convergencia"))
+BC_Diputados_2010 <- subset(BC_Diputados_2010, select=-c(V15, V16))
+setnames(BC_Ayuntamiento_2010, old = c("CABC", "CGR", "CRBC"), new = c("PAN", "PRI", "PT"))
+setnames(BC_Diputados_2010, old = c("CABC", "CGR", "CRBC"), new = c("PAN", "PRI", "PT"))
 
 colnames(BC_Ayuntamiento_2013)
 colnames(BC_Diputados_2013)
 colnames(BC_Gubernatura_2013)
 setnames(BC_Ayuntamiento_2013, old = c("UNIDOS.POR.BAJA.CALIFORNIA", "COMPROMISO.POR.BAJA.CALIFORNIA"), 
-         new = c("PAN + PRD + PANAL + PBC", "PRI  + VERDE + PES + PT"))
+         new = c("Pre - PAN", "Pre - PRI"))
 setnames(BC_Diputados_2013, old = c("UNIDOS.POR.BAJA.CALIFORNIA", "COMPROMISO.POR.BAJA.CALIFORNIA"), 
-         new = c("PAN + PRD + PANAL + PBC", "PRI  + VERDE + PES + PT"))
+         new = c("Pre - PAN", "Pre - PRI"))
 setnames(BC_Gubernatura_2013, old = c("UNIDOS.POR.BAJA.CALIFORNIA", "COMPROMISO.POR.BAJA.CALIFORNIA"), 
-         new = c("PAN + PRD + PANAL + PBC", "PRI  + VERDE + PES + PT"))
+         new = c("Pre - PAN", "Pre - PRI"))
 
 colnames(BC_Ayuntamiento_2016)
 colnames(BC_Diputados_2016)
+setnames(BC_Ayuntamiento_2016, old = c("PAN", "PRI", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8","C9", "C10", "C11"), 
+         new = c("Pre - PAN", "Pre - PRI", rep(c("Pre - PRI"),each=11)))
+setnames(BC_Diputados_2016, old = c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8","C9", "C10", "C11"), 
+         new = c("Pre - PAN", "Pre - PRI", rep(c("Pre - PRI"),each=11)))
+
 
 colnames(BC_Ayuntamiento_2019)
 colnames(BC_Diputados_2019)
 colnames(BC_Gubernatura_2019)
+setnames(BC_Ayuntamiento_2019, old = c("PAN", "PRI", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8","C9", "C10", "C11"), 
+         new = c("Pre - PAN", "Pre - PRI", rep(c("Pre - Morena"),each=11)))
+setnames(BC_Diputados_2019, old = c("PAN", "PRI","C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8","C9", "C10", "C11"), 
+         new = c("Pre - PAN", "Pre - PRI", rep(c("Pre - Morena"),each=11)))
+setnames(BC_Gubernatura_2019, old = c("PAN", "PRI","C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8","C9", "C10", "C11"), 
+         new = c("Pre - PAN", "Pre - PRI", rep(c("Pre - Morena"),each=11)))
 
 colnames(BC_Ayuntamiento_2021)
 colnames(BC_Diputados_2021)
 colnames(BC_Gubernatura_2021)
+setnames(BC_Ayuntamiento_2021, old = c("PAN", "PRI", "PRD", "PT", "PVEM", "PBC", "MC", "MORENA", "PES", "RSP", 
+                                       "FXM", "PAN...PRI...PRD", "PAN...PRI", "PAN...PRD", "PRI.PRD", 
+                                       "PT.PVEM.MORENA", "PT.PVEM", "PT...MORENA", "PVEM...MORENA"), 
+         new = c("Pre - PAN", "Pre - PRI", "Pre - PRD", "Pre - PT", "Pre - PVEM", 
+                 "Pre - PBC", "Pre - MC", "Pre - Morena", "Pre - PES", "Pre - RSP", "Pre - FXM",
+                 rep("Pre - Coalicion", each = 8)))
+setnames(BC_Diputados_2021, old = c("PAN", "PRI", "PRD", "PT", "PVEM", "PBC", "MC", "MORENA", "PES", "RSP", 
+                                       "FXM", "PAN...PRI...PRD", "PAN...PRI", "PAN...PRD", "PRI.PRD", 
+                                       "PT.PVEM.MORENA", "PT.PVEM", "PT...MORENA", "PVEM...MORENA"), 
+         new = c("Pre - PAN", "Pre - PRI", "Pre - PRD", "Pre - PT", "Pre - PVEM", 
+                 "Pre - PBC", "Pre - MC", "Pre - Morena", "Pre - PES", "Pre - RSP", "Pre - FXM",
+                 rep("Pre - Coalicion", each = 8)))
+setnames(BC_Gubernatura_2021, old = c("PAN", "PRI", "PRD", "PT", "PVEM", "PBC", "MC", "MORENA", "PES", "RSP", 
+                                       "FXM", "PAN...PRI...PRD", "PAN...PRI", "PAN...PRD", "PRI.PRD", 
+                                       "PT.PVEM.MORENA", "PT.PVEM", "PT...MORENA", "PVEM...MORENA"), 
+         new = c("Pre - PAN", "Pre - PRI", "Pre - PRD", "Pre - PT", "Pre - PVEM", 
+                 "Pre - PBC", "Pre - MC", "Pre - Morena", "Pre - PES", "Pre - RSP", "Pre - FXM",
+                 rep("Pre - Coalicion", each = 8)))
 
+
+#Before formatting data we check that results match to those published by IEEBC 
+aggregate(BC_Ayuntamiento_2010$CABC, by=list(Category = BC_Ayuntamiento_2010$MUNICIPIO), FUN=sum)
+aggregate(BC_Diputados_2010$CABC, by=list(Category=BC_Diputados_2010$MUNICIPIO), FUN=sum)

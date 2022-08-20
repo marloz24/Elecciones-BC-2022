@@ -150,7 +150,7 @@ setnames(Casilla_Gubernatura_2013, old = c("CASILLA", "UNIDOS.POR.BAJA.CALIFORNI
 colnames(Casilla_Ayuntamiento_2016)
 colnames(Casilla_Diputados_2016)
 
-setnames(Casilla_Ayuntamiento_2016, old = c("PRI"), new = c("Pre_PRI"))
+setnames(Casilla_Ayuntamiento_2016, old = c("PRI"), new = c("PRI"))
 setnames(Casilla_Diputados_2016, old = c("PRI"), new = c("Pre_PRI"))
 
 Casilla_Ayuntamiento_2016 <- Casilla_Ayuntamiento_2016 %>%  
@@ -190,22 +190,22 @@ setnames(Casilla_Gubernatura_2021, old = c("MORENA"), new = c("Pre_Morena" ))
 
 Casilla_Ayuntamiento_2021 <- Casilla_Ayuntamiento_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
-                               "PAN...PRD", "PRI.PRD")), .after = "TOTAL.VOTOS")
+                               "PAN...PRD", "PRI.PRD")), .after = "TIPO")
 Casilla_Ayuntamiento_2021 <- Casilla_Ayuntamiento_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
-                               "PT...MORENA", "PVEM...MORENA")), .after = "TOTAL.VOTOS")
+                               "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
 Casilla_Diputados_2021 <- Casilla_Diputados_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
-                               "PAN...PRD", "PRI.PRD")), .after = "TOTAL.VOTOS")
+                               "PAN...PRD", "PRI.PRD")), .after = "TIPO")
 Casilla_Diputados_2021 <- Casilla_Diputados_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
-                               "PT...MORENA", "PVEM...MORENA")), .after = "TOTAL.VOTOS")
+                               "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
 Casilla_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
-                               "PAN...PRD", "PRI.PRD")), .after = "TOTAL.VOTOS")
+                               "PAN...PRD", "PRI.PRD")), .after = "TIPO")
 Casilla_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
-                               "PT...MORENA", "PVEM...MORENA")), .after = "TOTAL.VOTOS")
+                               "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
 
 
 # ====================================================================================================
@@ -243,15 +243,35 @@ Seccion_Gubernatura_2019 <- Casilla_Gubernatura_2019 %>% group_by(MUNICIPIO, DIS
 Seccion_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>% group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
   summarise_if(is.numeric, sum)
 
+
 # ====================================================================================================
 # ====================================================================================================
 
 
+# Finally, we build our historic databases
 Ayuntamiento <- list(Seccion_Ayuntamiento_2021, Seccion_Ayuntamiento_2019, Seccion_Ayuntamiento_2016,
                      Seccion_Ayuntamiento_2013, Seccion_Ayuntamiento_2010) %>% 
   reduce(left_join, by = "SECCION")
+colnames(Ayuntamiento)
+Ayuntamiento[ ,c("")] <- list(NULL)
+colnames(Ayuntamiento)
+
+
 Diputados <- list(Seccion_Diputados_2021, Seccion_Diputados_2019, Seccion_Diputados_2016,
                   Seccion_Diputados_2013, Seccion_Diputados_2010) %>% 
   reduce(left_join, by = "SECCION")
+colnames(Diputados)
+Diputados[ ,c("")] <- list(NULL)
+colnames(Diputados)
+
+
 Gubernatura <- list(Seccion_Gubernatura_2021, Seccion_Gubernatura_2019, Seccion_Gubernatura_2013) %>% 
   reduce(left_join, by = "SECCION")
+colnames(Gubernatura)
+Gubernatura[ ,c("PAN...PRI...PRD", "PAN...PRI", "PAN...PRD", "PRI.PRD", "PT.PVEM.MORENA", "PT.PVEM",
+                "PT...MORENA", "PVEM...MORENA", "MUNICIPIO.y", "DISTRITO.y", "C1", "C2", "C3", "C4",
+                "C5", "C6", "C7", "C8", "C9", "C10", "C11", "MUNICIPIO", "DISTRITO")] <- list(NULL)
+colnames(Gubernatura)
+
+
+

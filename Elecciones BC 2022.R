@@ -50,7 +50,7 @@ Casilla_Ayuntamiento_2016[,5:42] <- sapply(Casilla_Ayuntamiento_2016[,5:42], as.
 Casilla_Ayuntamiento_2019[,5:34] <- sapply(Casilla_Ayuntamiento_2019[,5:34], as.numeric)
 Casilla_Ayuntamiento_2021[,5:34] <- sapply(Casilla_Ayuntamiento_2021[,5:34], as.numeric)
 
-Casilla_Diputados_2010[,5:16] <- sapply(Casilla_Diputados_2010[,5:16], as.numeric)
+Casilla_Diputados_2010[,5:14] <- sapply(Casilla_Diputados_2010[,5:14], as.numeric)
 Casilla_Diputados_2013[,5:13] <- sapply(Casilla_Diputados_2013[,5:13], as.numeric)
 Casilla_Diputados_2016[,5:41] <- sapply(Casilla_Diputados_2016[,5:41], as.numeric)
 Casilla_Diputados_2019[,5:32] <- sapply(Casilla_Diputados_2019[,5:32], as.numeric)
@@ -249,29 +249,47 @@ Seccion_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>% group_by(MUNICIPIO, DIS
 
 
 # Finally, we build our historic databases
+
+colnames(Seccion_Ayuntamiento_2010)[-3] <- paste(colnames(Seccion_Ayuntamiento_2010)[-3], "2010", sep = "_")
+colnames(Seccion_Ayuntamiento_2013)[-3] <- paste(colnames(Seccion_Ayuntamiento_2013)[-3], "2013", sep = "_")
+colnames(Seccion_Ayuntamiento_2016)[-3] <- paste(colnames(Seccion_Ayuntamiento_2016)[-3], "2016", sep = "_")
+colnames(Seccion_Ayuntamiento_2019)[-3] <- paste(colnames(Seccion_Ayuntamiento_2019)[-3], "2019", sep = "_")
+colnames(Seccion_Ayuntamiento_2021)[-3] <- paste(colnames(Seccion_Ayuntamiento_2021)[-3], "2021", sep = "_")
+
+colnames(Seccion_Diputados_2010)[-3] <- paste(colnames(Seccion_Diputados_2010)[-3], "2010", sep = "_")
+colnames(Seccion_Diputados_2013)[-3] <- paste(colnames(Seccion_Diputados_2013)[-3], "2013", sep = "_")
+colnames(Seccion_Diputados_2016)[-3] <- paste(colnames(Seccion_Diputados_2016)[-3], "2016", sep = "_")
+colnames(Seccion_Diputados_2019)[-3] <- paste(colnames(Seccion_Diputados_2019)[-3], "2019", sep = "_")
+colnames(Seccion_Diputados_2021)[-3] <- paste(colnames(Seccion_Diputados_2021)[-3], "2021", sep = "_")
+
+colnames(Seccion_Gubernatura_2013)[-3] <- paste(colnames(Seccion_Gubernatura_2013)[-3], "2013", sep = "_")
+colnames(Seccion_Gubernatura_2019)[-3] <- paste(colnames(Seccion_Gubernatura_2019)[-3], "2019", sep = "_")
+colnames(Seccion_Gubernatura_2021)[-3] <- paste(colnames(Seccion_Gubernatura_2021)[-3], "2021", sep = "_")
+
 Ayuntamiento <- list(Seccion_Ayuntamiento_2021, Seccion_Ayuntamiento_2019, Seccion_Ayuntamiento_2016,
                      Seccion_Ayuntamiento_2013, Seccion_Ayuntamiento_2010) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Ayuntamiento)
-Ayuntamiento[ ,c("")] <- list(NULL)
+Ayuntamiento[ ,c(22:29, 48:58, 84:94)] <- list(NULL)
 colnames(Ayuntamiento)
-
 
 Diputados <- list(Seccion_Diputados_2021, Seccion_Diputados_2019, Seccion_Diputados_2016,
                   Seccion_Diputados_2013, Seccion_Diputados_2010) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Diputados)
-Diputados[ ,c("")] <- list(NULL)
+Diputados[ ,c(19:26, 44:55, 80:90)] <- list(NULL)
 colnames(Diputados)
 
 
 Gubernatura <- list(Seccion_Gubernatura_2021, Seccion_Gubernatura_2019, Seccion_Gubernatura_2013) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Gubernatura)
-Gubernatura[ ,c("PAN...PRI...PRD", "PAN...PRI", "PAN...PRD", "PRI.PRD", "PT.PVEM.MORENA", "PT.PVEM",
-                "PT...MORENA", "PVEM...MORENA", "MUNICIPIO.y", "DISTRITO.y", "C1", "C2", "C3", "C4",
-                "C5", "C6", "C7", "C8", "C9", "C10", "C11", "MUNICIPIO", "DISTRITO")] <- list(NULL)
+Gubernatura[ ,c(17:24, 43:53)] <- list(NULL)
 colnames(Gubernatura)
 
 
+# ====================================================================================================
+# ====================================================================================================
 
+
+#

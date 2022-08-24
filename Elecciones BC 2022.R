@@ -28,6 +28,7 @@ Casilla_Gubernatura_2021 <- fread("https://raw.githubusercontent.com/marloz24/El
 
 
 #We notice abstention and participation are char variable because of % replace and convert to numeric
+
 Casilla_Ayuntamiento_2010 <- data.frame(lapply(Casilla_Ayuntamiento_2010, function(x) gsub("%", "", x)))
 Casilla_Ayuntamiento_2013 <- data.frame(lapply(Casilla_Ayuntamiento_2013, function(x) gsub("%", "", x)))
 Casilla_Ayuntamiento_2016 <- data.frame(lapply(Casilla_Ayuntamiento_2016, function(x) gsub("%", "", x)))
@@ -66,6 +67,7 @@ Casilla_Gubernatura_2021[,5:29] <- sapply(Casilla_Gubernatura_2021[,5:29], as.nu
 
 
 # We convert all NAs in all tables to 0
+
 Casilla_Ayuntamiento_2010[is.na(Casilla_Ayuntamiento_2010)] <- 0
 Casilla_Ayuntamiento_2013[is.na(Casilla_Ayuntamiento_2013)] <- 0
 Casilla_Ayuntamiento_2016[is.na(Casilla_Ayuntamiento_2016)] <- 0
@@ -88,6 +90,7 @@ Casilla_Gubernatura_2021[is.na(Casilla_Gubernatura_2021)] <- 0
 
 
 #Before formatting data we check that results match to those published by IEEBC
+
 aggregate(Casilla_Ayuntamiento_2010$CABC, by = list(Category = Casilla_Ayuntamiento_2010$MUNICIPIO), FUN=sum)
 aggregate(Casilla_Diputados_2010$CABC, by = list(Category = Casilla_Diputados_2010$MUNICIPIO), FUN=sum)
 
@@ -213,7 +216,7 @@ Casilla_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>%
 
 
 # Original election results come by polling place, we are interested in results by section
-colnames(Casilla_Ayuntamiento_2010)
+
 Seccion_Ayuntamiento_2010 <- Casilla_Ayuntamiento_2010 %>% group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
   summarise_if(is.numeric, sum)
 Seccion_Ayuntamiento_2013 <- Casilla_Ayuntamiento_2013 %>% group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
@@ -242,6 +245,57 @@ Seccion_Gubernatura_2019 <- Casilla_Gubernatura_2019 %>% group_by(MUNICIPIO, DIS
   summarise_if(is.numeric, sum)
 Seccion_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>% group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
   summarise_if(is.numeric, sum)
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# Since participation and abstention rate were sum, we re-calculated them
+
+Seccion_Ayuntamiento_2010 <- Seccion_Ayuntamiento_2010 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Ayuntamiento_2013 <- Seccion_Ayuntamiento_2013 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Ayuntamiento_2016 <- Seccion_Ayuntamiento_2016 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Ayuntamiento_2019 <- Seccion_Ayuntamiento_2019 %>%  
+  mutate(X..DE.ABST. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.ABST.))
+Seccion_Ayuntamiento_2021 <- Seccion_Ayuntamiento_2021 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
+
+
+Seccion_Diputados_2010 <- Seccion_Diputados_2010 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE....ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Diputados_2013 <- Seccion_Diputados_2013 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Diputados_2016 <- Seccion_Diputados_2016 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Diputados_2019 <- Seccion_Diputados_2019 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.ABST.))
+Seccion_Diputados_2021 <- Seccion_Diputados_2021 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
+
+
+Seccion_Gubernatura_2013 <- Seccion_Gubernatura_2013 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
+Seccion_Gubernatura_2019 <- Seccion_Gubernatura_2019 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.ABST.))
+Seccion_Gubernatura_2021 <- Seccion_Gubernatura_2021 %>%  
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 
 
 # ====================================================================================================
@@ -290,6 +344,7 @@ colnames(Gubernatura)
 
 # ====================================================================================================
 # ====================================================================================================
+
 
 
 #

@@ -1,5 +1,6 @@
 library(data.table)
 library(tidyverse)
+library(tidyselect)
 library(dplyr)
 
 # Our data source is Electoral Institute of Baja California: https://ieebc.mx/resultados-electorales/
@@ -254,47 +255,47 @@ Seccion_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>% group_by(MUNICIPIO, DIS
 # Since participation and abstention rate were sum, we re-calculated them
 
 Seccion_Ayuntamiento_2010 <- Seccion_Ayuntamiento_2010 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Ayuntamiento_2013 <- Seccion_Ayuntamiento_2013 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Ayuntamiento_2016 <- Seccion_Ayuntamiento_2016 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Ayuntamiento_2019 <- Seccion_Ayuntamiento_2019 %>%  
-  mutate(X..DE.ABST. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.ABST. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.ABST.))
 Seccion_Ayuntamiento_2021 <- Seccion_Ayuntamiento_2021 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 
 
 Seccion_Diputados_2010 <- Seccion_Diputados_2010 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE....ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Diputados_2013 <- Seccion_Diputados_2013 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Diputados_2016 <- Seccion_Diputados_2016 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Diputados_2019 <- Seccion_Diputados_2019 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.ABST.))
 Seccion_Diputados_2021 <- Seccion_Diputados_2021 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 
 
 Seccion_Gubernatura_2013 <- Seccion_Gubernatura_2013 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Gubernatura_2019 <- Seccion_Gubernatura_2019 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.ABST.))
 Seccion_Gubernatura_2021 <- Seccion_Gubernatura_2021 %>%  
-  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 
 
@@ -320,31 +321,97 @@ colnames(Seccion_Gubernatura_2013)[-3] <- paste(colnames(Seccion_Gubernatura_201
 colnames(Seccion_Gubernatura_2019)[-3] <- paste(colnames(Seccion_Gubernatura_2019)[-3], "2019", sep = "_")
 colnames(Seccion_Gubernatura_2021)[-3] <- paste(colnames(Seccion_Gubernatura_2021)[-3], "2021", sep = "_")
 
+
 Ayuntamiento <- list(Seccion_Ayuntamiento_2021, Seccion_Ayuntamiento_2019, Seccion_Ayuntamiento_2016,
                      Seccion_Ayuntamiento_2013, Seccion_Ayuntamiento_2010) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Ayuntamiento)
-Ayuntamiento[ ,c(22:29, 48:58, 84:94)] <- list(NULL)
+Ayuntamiento[ ,c(22:29, 36:37, 48:58, 69:67, 84:94, 109:110)] <- list(NULL)
 colnames(Ayuntamiento)
 
 Diputados <- list(Seccion_Diputados_2021, Seccion_Diputados_2019, Seccion_Diputados_2016,
                   Seccion_Diputados_2013, Seccion_Diputados_2010) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Diputados)
-Diputados[ ,c(19:26, 44:55, 80:90)] <- list(NULL)
+Diputados[ ,c(19:26, 33:34, 45:55, 64:65, 80:90, 104:105, 115:116)] <- list(NULL)
 colnames(Diputados)
 
 
 Gubernatura <- list(Seccion_Gubernatura_2021, Seccion_Gubernatura_2019, Seccion_Gubernatura_2013) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Gubernatura)
-Gubernatura[ ,c(17:24, 43:53)] <- list(NULL)
+Gubernatura[ ,c(17:24, 31:32, 43:53, 60:61)] <- list(NULL)
 colnames(Gubernatura)
 
 
 # ====================================================================================================
 # ====================================================================================================
 
+colnames(Gubernatura)
+Gub_2021 <- (4:16)
+Gub_2019 <- (23:33)
+Gub_2013 <- (39:41)
+
+colnames(Diputados)
+Dip_2021 <- (4:19)
+Dip_2019 <- (25:36)
+Dip_2016 <- (42:63)
+Dip_2013 <- (69:72)
+Dip_2010 <- (78:82)
+
+colnames(Ayuntamiento)
+Ayu_2021 <- (4:22)
+Ayu_2019 <- (28:42)
+Ayu_2016 <- (47:68)
+Ayu_2013 <- (74:77)
+Ayu_2010 <- (85:90)
 
 
-#
+Gubernatura_2021 <- colnames(Gubernatura[,Gub_2021])[max.col((Gubernatura[,Gub_2021]))]
+Gubernatura_2019 <- colnames(Gubernatura[,Gub_2019])[max.col((Gubernatura[,Gub_2019]))]
+Gubernatura_2013 <- colnames(Gubernatura[,Gub_2013])[max.col((Gubernatura[,Gub_2013]))]
+
+Gubernatura_2021_Votos <- apply(Gubernatura[Gub_2021], 1, max)
+Gubernatura_2019_Votos <- apply(Gubernatura[Gub_2019], 1, max)
+Gubernatura_2013_Votos <- apply(Gubernatura[Gub_2013], 1, max)
+
+Diputados_2021 <- colnames(Diputados[,Dip_2021])[max.col((Diputados[,Dip_2021]))]
+Diputados_2019 <- colnames(Diputados[,Dip_2019])[max.col((Diputados[,Dip_2019]))]
+Diputados_2016 <- colnames(Diputados[,Dip_2016])[max.col((Diputados[,Dip_2016]))]
+Diputados_2013 <- colnames(Diputados[,Dip_2013])[max.col((Diputados[,Dip_2013]))]
+Diputados_2010 <- colnames(Diputados[,Dip_2010])[max.col((Diputados[,Dip_2010]))]
+
+Diputados_2021_votos <- apply(Diputados[Dip_2021], 1, max)
+Diputados_2019_votos <- apply(Diputados[Dip_2019], 1, max)
+Diputados_2016_votos <- apply(Diputados[Dip_2016], 1, max)
+Diputados_2013_votos <- apply(Diputados[Dip_2013], 1, max)
+Diputados_2010_votos <- apply(Diputados[Dip_2010], 1, max)
+
+Ayuntamiento_2021 <- colnames(Ayuntamiento[,Ayu_2021])[max.col((Ayuntamiento[,Ayu_2021]))]
+Ayuntamiento_2019 <- colnames(Ayuntamiento[,Ayu_2019])[max.col((Ayuntamiento[,Ayu_2019]))]
+Ayuntamiento_2016 <- colnames(Ayuntamiento[,Ayu_2016])[max.col((Ayuntamiento[,Ayu_2016]))]
+Ayuntamiento_2013 <- colnames(Ayuntamiento[,Ayu_2013])[max.col((Ayuntamiento[,Ayu_2013]))]
+Ayuntamiento_2010 <- colnames(Ayuntamiento[,Ayu_2010])[max.col((Ayuntamiento[,Ayu_2010]))]
+
+Ayuntamiento_2021_votos <- apply(Ayuntamiento[Ayu_2021], 1, max)
+Ayuntamiento_2019_votos <- apply(Ayuntamiento[Ayu_2019], 1, max)
+Ayuntamiento_2016_votos <- apply(Ayuntamiento[Ayu_2016], 1, max)
+Ayuntamiento_2013_votos <- apply(Ayuntamiento[Ayu_2013], 1, max)
+Ayuntamiento_2010_votos <- apply(Ayuntamiento[Ayu_2010], 1, max)
+
+
+Ganador_Gubernatura <- data.frame(Gubernatura[,1:3], Gubernatura_2021, Gubernatura_2021_Votos, 
+                                  Gubernatura_2019, Gubernatura_2019_Votos,
+                                  Gubernatura_2013, Gubernatura_2013_Votos)
+
+Ganador_Diputados <- data.frame(Diputados[,1:3], Diputados_2021_votos, 
+                                Diputados_2019, Diputados_2019_votos, 
+                                Diputados_2016, Diputados_2016_votos,
+                                Diputados_2013, Diputados_2013_votos,
+                                Diputados_2010, Diputados_2010_votos)
+
+Ganador_Ayuntamiento <- data.frame(Ayuntamiento[,1:3], Ayuntamiento_2021, Ayuntamiento_2021_votos,
+                                   Ayuntamiento_2019, Ayuntamiento_2019_votos,
+                                   Ayuntamiento_2016, Ayuntamiento_2016_votos,
+                                   Ayuntamiento_2013, Ayuntamiento_2013_votos,
+                                   Ayuntamiento_2010, Ayuntamiento_2010_votos)

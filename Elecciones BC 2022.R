@@ -2,6 +2,9 @@ library(data.table)
 library(tidyverse)
 library(tidyselect)
 library(dplyr)
+library(sf)
+
+setwd("C:/Users/rmartinez/Desktop/Elecciones BC")
 
 # Our data source is Electoral Institute of Baja California: https://ieebc.mx/resultados-electorales/
 # Data original format was .xlsx with a number of sheets, for personal convenience it was restructured in various single csv
@@ -117,14 +120,6 @@ aggregate(Casilla_Gubernatura_2021$PAN, by = list(Category = Casilla_Gubernatura
 
 # After validating csv match final published results, we format and standardized  our tables
 
-colnames(Casilla_Ayuntamiento_2010)
-colnames(Casilla_Diputados_2010)
-
-setnames(Casilla_Ayuntamiento_2010, old = c("CASILLA","CABC", "CGR", "CRBC"), 
-         new = c("SECCION","PAN", "PRI", "PT"))
-setnames(Casilla_Diputados_2010, old = c("CASILLA", "CABC", "CGR", "CRBC"), 
-         new = c("SECCION", "PAN", "PRI", "PT"))
-
 Casilla_Ayuntamiento_2010$MUNICIPIO <- case_when(
   Casilla_Ayuntamiento_2010$MUNICIPIO == 1 ~ "ENSENADA",
   Casilla_Ayuntamiento_2010$MUNICIPIO == 2 ~ "MEXICALI",
@@ -137,6 +132,14 @@ Casilla_Diputados_2010$MUNICIPIO <- case_when(
   Casilla_Diputados_2010$MUNICIPIO == 3 ~ "TECATE",
   Casilla_Diputados_2010$MUNICIPIO == 4 ~ "TIJUANA",
   Casilla_Diputados_2010$MUNICIPIO == 5 ~ "ROSARITO")
+
+colnames(Casilla_Ayuntamiento_2010)
+colnames(Casilla_Diputados_2010)
+
+setnames(Casilla_Ayuntamiento_2010, old = c("CASILLA","CABC", "CGR", "CRBC"), 
+         new = c("SECCION","PAN", "PRI", "PT"))
+setnames(Casilla_Diputados_2010, old = c("CASILLA", "CABC", "CGR", "CRBC"), 
+         new = c("SECCION", "PAN", "PRI", "PT"))
 
 
 colnames(Casilla_Ayuntamiento_2013)
@@ -264,7 +267,7 @@ Seccion_Ayuntamiento_2016 <- Seccion_Ayuntamiento_2016 %>%
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Ayuntamiento_2019 <- Seccion_Ayuntamiento_2019 %>%  
-  mutate(X..DE.ABST. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
+  mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.ABST.))
 Seccion_Ayuntamiento_2021 <- Seccion_Ayuntamiento_2021 %>%  
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
@@ -348,7 +351,8 @@ colnames(Gubernatura)
 # ====================================================================================================
 
 
-# Based on our historic database, we 
+# Based on our historic database, we build a table with the winning party 
+# by election and how many votes it got
 
 colnames(Gubernatura)
 Gub_2021 <- (4:16)
@@ -424,10 +428,16 @@ Ganador_Ayuntamiento <- data.frame(Ayuntamiento[,1:3],
                                    Ayuntamiento_2016_votos,Ayuntamiento_2013_votos, 
                                    Ayuntamiento_2010_votos)
 
-Ganador_Gubernatura[,4:6] <- lapply(Ganador_Gubernatura[,4:6], function(x) sub("_\\d+$", "", x))  # or _\\d{4} for a year
-Ganador_Diputados[,4:8] <- lapply(Ganador_Diputados[,4:8], function(x) sub("_\\d+$", "", x))  # or _\\d{4} for a year
-Ganador_Ayuntamiento[,4:8] <- lapply(Ganador_Ayuntamiento[,4:8], function(x) sub("_\\d+$", "", x))  # or _\\d{4} for a year
 
+# ====================================================================================================
+# ====================================================================================================
+
+
+# 
+
+Ganador_Gubernatura[,4:6] <- lapply(Ganador_Gubernatura[,4:6], function(x) sub("_\\d+$", "", x))
+Ganador_Diputados[,4:8] <- lapply(Ganador_Diputados[,4:8], function(x) sub("_\\d+$", "", x))
+Ganador_Ayuntamiento[,4:8] <- lapply(Ganador_Ayuntamiento[,4:8], function(x) sub("_\\d+$", "", x))
 
 Resultados_Gubernatura_Distrito <- Gubernatura %>%
   group_by(DISTRITO_2021) %>%
@@ -440,3 +450,66 @@ Resultados_Diputados_Distrito <- Diputados %>%
 Resultados_Ayuntamiento_Distrito <- Ayuntamiento %>%
   group_by(DISTRITO_2021) %>%
   summarise(across(where(is.numeric), .f = (sum = sum), na.rm = TRUE))
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# In plataformadetransparencia.org.mx we found a KML map from the 2013 State Election, we will
+# convert it to SHP to add our working columns to plot as we prefer 
+
+# all_layers <- st_layers("Distritacion 2013.kml")
+# all_layers <- as.vector(all_layers$name)
+ 
+# Casillas <- data.frame()
+# Secciones <- data.frame()
+# 
+# elemento <- st_read("Distritacion 2013.kml", layer = "SECCION_0150.KML")
+# Casillas <- elemento[1,]
+# Secciones <- elemento[2,]
+ 
+# for (i in all_layers) {
+# 
+#   elemento <- st_read("Distritacion 2013.kml", layer = i)
+#   
+#   Casillas <- rbind(Casillas, elemento[1,])
+#   Secciones <- rbind(Secciones, elemento[2,])
+#   Secciones$Name <- Casillas$Name
+# 
+# }
+
+
+
+
+# st_drivers()
+
+# plot(Casillas)
+# str(Casillas)
+# Casillas$Description <- NULL
+# st_write(Casillas, dsn = "Casillas", driver= "kml", "Casillas.shp")
+
+# plot(Secciones)
+# str(Secciones)
+# Secciones$Description <- NULL
+# st_write(Secciones, dsn = "Secciones", driver= "ESRI Shapefile", "Secciones.shp")
+
+#
+setwd("C:/Users/rmartinez/Desktop/Elecciones BC/Secciones")
+Secciones <- st_read("Secciones.shp")
+correccion <- str_match(Secciones$Name, "Casilla \\s*(.*?)\\s*B,C")[,2]
+
+table(is.na(correccion))
+which(is.na(correccion))
+Secciones$Name[c(84, 85, 1724)]
+
+(Secciones$Name)[c(84, 85)]
+correccion[c(84, 85)] <- c(0217, 0218)
+
+correccion[1724] <- "SECCION_0150.KML"
+
+Secciones$Name <- correccion
+
+nchar(Secciones$Name)
+a <- which(nchar(Secciones$Name) == 3)
+Secciones$Name[c(a)]

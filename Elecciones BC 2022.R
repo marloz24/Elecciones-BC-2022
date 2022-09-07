@@ -455,9 +455,18 @@ Resultados_Ayuntamiento_Distrito <- Ayuntamiento %>%
 # ====================================================================================================
 # ====================================================================================================
 
+Ganador_Gubernatura[,4:6]
+Ganador_Diputados[,4:8] 
+Ganador_Ayuntamiento[,4:8]
+#
 
-# In plataformadetransparencia.org.mx we found a KML map from the 2013 State Election, we will
-# convert it to SHP to add our working columns to plot as we prefer 
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# In www.plataformadetransparencia.org.mx we found a KML map from the 2013 State Election,
+# we will convert it to SHP and add our working columns to plot maps as we prefer 
 
 # all_layers <- st_layers("Distritacion 2013.kml")
 # all_layers <- as.vector(all_layers$name)
@@ -479,8 +488,7 @@ Resultados_Ayuntamiento_Distrito <- Ayuntamiento %>%
 # 
 # }
 
-
-
+# We make sure our SHP file is plotted as it has to and save them
 
 # st_drivers()
 
@@ -494,22 +502,39 @@ Resultados_Ayuntamiento_Distrito <- Ayuntamiento %>%
 # Secciones$Description <- NULL
 # st_write(Secciones, dsn = "Secciones", driver= "ESRI Shapefile", "Secciones.shp")
 
-#
+# There are some inconsistencies in some section names, we proceed to fix it
+# First, wee need to subtract "Casilla ... B,C" 
 setwd("C:/Users/rmartinez/Desktop/Elecciones BC/Secciones")
 Secciones <- st_read("Secciones.shp")
 correccion <- str_match(Secciones$Name, "Casilla \\s*(.*?)\\s*B,C")[,2]
 
+# As standar practice, we check for NA and fix them if they appear
 table(is.na(correccion))
 which(is.na(correccion))
 Secciones$Name[c(84, 85, 1724)]
 
-(Secciones$Name)[c(84, 85)]
 correccion[c(84, 85)] <- c(0217, 0218)
+correccion[1724] <- "0150"
 
-correccion[1724] <- "SECCION_0150.KML"
+#
+nchar(correccion)
 
-Secciones$Name <- correccion
+mistakes_location  <- which(nchar(correccion) != 4)
+correccion[c(mistakes_location)]
+missing_0 <- which(nchar(correccion) == 3)
+correccion[c(missing_0)] <- paste("0", correccion[c(missing_0)], sep="")
+correccion[c(missing_0)]
 
-nchar(Secciones$Name)
-a <- which(nchar(Secciones$Name) == 3)
-Secciones$Name[c(a)]
+mistakes_location  <- which(nchar(correccion) != 4)
+correccion[c(mistakes_location)]
+correccion[c(mistakes_location)] <- c("1943", "1945", "1946")
+correccion[c(mistakes_location)]
+
+which(nchar(correccion) != 4)
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# a 

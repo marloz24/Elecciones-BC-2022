@@ -6,9 +6,10 @@ library(sf)
 
 setwd("C:/Users/rmartinez/Desktop/Elecciones BC")
 
-# Our data source is Electoral Institute of Baja California: https://ieebc.mx/resultados-electorales/
-# Data original format was .xlsx with a number of sheets, for personal convenience it was restructured in various single csv
-# After uploading to github, our fist step is to load or data into different tables
+# Our data source is Electoral Institute of Baja California: ieebc.mx/resultados-electorales
+# Data original format was .xlsx with a number of sheets, for personal convenience 
+# it was restructured in various single csv. After uploading to github, our fist step 
+# is to load or data into different tables
 
 Casilla_Ayuntamiento_2010 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2010.csv")
 Casilla_Ayuntamiento_2013 <- fread("https://raw.githubusercontent.com/marloz24/Elecciones-BC-2022/main/Resultados%20Campanas/BC_Ayuntamiento_2013.csv")
@@ -215,11 +216,45 @@ Casilla_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>%
                                "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
 
 
+Casilla_Ayuntamiento_2010[is.na(Casilla_Ayuntamiento_2010)] <- 0
+Casilla_Ayuntamiento_2013[is.na(Casilla_Ayuntamiento_2013)] <- 0
+Casilla_Ayuntamiento_2016[is.na(Casilla_Ayuntamiento_2016)] <- 0
+Casilla_Ayuntamiento_2019[is.na(Casilla_Ayuntamiento_2019)] <- 0
+Casilla_Ayuntamiento_2021[is.na(Casilla_Ayuntamiento_2021)] <- 0
+
+Casilla_Diputados_2010[is.na(Casilla_Diputados_2010)] <- 0
+Casilla_Diputados_2013[is.na(Casilla_Diputados_2013)] <- 0
+Casilla_Diputados_2016[is.na(Casilla_Diputados_2016)] <- 0
+Casilla_Diputados_2019[is.na(Casilla_Diputados_2019)] <- 0
+Casilla_Diputados_2021[is.na(Casilla_Diputados_2021)] <- 0
+
+Casilla_Gubernatura_2013[is.na(Casilla_Gubernatura_2013)] <- 0
+Casilla_Gubernatura_2019[is.na(Casilla_Gubernatura_2019)] <- 0
+Casilla_Gubernatura_2021[is.na(Casilla_Gubernatura_2021)] <- 0
+
+
+# Casilla_Ayuntamiento_2010$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2010$SECCION,  justify = c("right"), width = 4))
+# Casilla_Ayuntamiento_2013$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2013$SECCION,  justify = c("right"), width = 4))
+# Casilla_Ayuntamiento_2016$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2016$SECCION,  justify = c("right"), width = 4))
+# Casilla_Ayuntamiento_2019$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2019$SECCION,  justify = c("right"), width = 4))
+# Casilla_Ayuntamiento_2021$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2021$SECCION,  justify = c("right"), width = 4))
+# 
+# Casilla_Diputados_2010$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2010$SECCION,  justify = c("right"), width = 4))
+# Casilla_Diputados_2013$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2013$SECCION,  justify = c("right"), width = 4))
+# Casilla_Diputados_2016$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2016$SECCION,  justify = c("right"), width = 4))
+# Casilla_Diputados_2019$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2019$SECCION,  justify = c("right"), width = 4))
+# Casilla_Diputados_2021$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2021$SECCION,  justify = c("right"), width = 4))
+# 
+# Casilla_Gubernatura_2013$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2013$SECCION,  justify = c("right"), width = 4))
+# Casilla_Gubernatura_2019$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2019$SECCION,  justify = c("right"), width = 4))
+# Casilla_Gubernatura_2021$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2021$SECCION,  justify = c("right"), width = 4))
+
 # ====================================================================================================
 # ====================================================================================================
 
 
 # Original election results come by polling place, we are interested in results by section
+# so we summarize
 
 Seccion_Ayuntamiento_2010 <- Casilla_Ayuntamiento_2010 %>% group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
   summarise_if(is.numeric, sum)
@@ -268,7 +303,7 @@ Seccion_Ayuntamiento_2016 <- Seccion_Ayuntamiento_2016 %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Ayuntamiento_2019 <- Seccion_Ayuntamiento_2019 %>%  
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
-  mutate(X..DE.ABST. = (100 - X..DE.ABST.))
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Ayuntamiento_2021 <- Seccion_Ayuntamiento_2021 %>%  
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
@@ -296,7 +331,7 @@ Seccion_Gubernatura_2013 <- Seccion_Gubernatura_2013 %>%
   mutate(X..DE.....ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Gubernatura_2019 <- Seccion_Gubernatura_2019 %>%  
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
-  mutate(X..DE.ABST. = (100 - X..DE.ABST.))
+  mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
 Seccion_Gubernatura_2021 <- Seccion_Gubernatura_2021 %>%  
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
   mutate(X..DE.ABST. = (100 - X..DE.PARTICIP.))
@@ -373,7 +408,6 @@ Ayu_2016 <- (47:68)
 Ayu_2013 <- (74:77)
 Ayu_2010 <- (85:90)
 
-
 Gubernatura_2021 <- colnames(Gubernatura[,Gub_2021])[max.col((Gubernatura[,Gub_2021]))]
 Gubernatura_2019 <- colnames(Gubernatura[,Gub_2019])[max.col((Gubernatura[,Gub_2019]))]
 Gubernatura_2013 <- colnames(Gubernatura[,Gub_2013])[max.col((Gubernatura[,Gub_2013]))]
@@ -381,7 +415,6 @@ Gubernatura_2013 <- colnames(Gubernatura[,Gub_2013])[max.col((Gubernatura[,Gub_2
 Gubernatura_2021_votos <- apply(Gubernatura[Gub_2021], 1, max)
 Gubernatura_2019_votos <- apply(Gubernatura[Gub_2019], 1, max)
 Gubernatura_2013_votos <- apply(Gubernatura[Gub_2013], 1, max)
-
 
 Diputados_2021 <- colnames(Diputados[,Dip_2021])[max.col((Diputados[,Dip_2021]))]
 Diputados_2019 <- colnames(Diputados[,Dip_2019])[max.col((Diputados[,Dip_2019]))]
@@ -395,8 +428,6 @@ Diputados_2016_votos <- apply(Diputados[Dip_2016], 1, max)
 Diputados_2013_votos <- apply(Diputados[Dip_2013], 1, max)
 Diputados_2010_votos <- apply(Diputados[Dip_2010], 1, max)
 
-
-
 Ayuntamiento_2021 <- colnames(Ayuntamiento[,Ayu_2021])[max.col((Ayuntamiento[,Ayu_2021]))]
 Ayuntamiento_2019 <- colnames(Ayuntamiento[,Ayu_2019])[max.col((Ayuntamiento[,Ayu_2019]))]
 Ayuntamiento_2016 <- colnames(Ayuntamiento[,Ayu_2016])[max.col((Ayuntamiento[,Ayu_2016]))]
@@ -408,7 +439,6 @@ Ayuntamiento_2019_votos <- apply(Ayuntamiento[Ayu_2019], 1, max)
 Ayuntamiento_2016_votos <- apply(Ayuntamiento[Ayu_2016], 1, max)
 Ayuntamiento_2013_votos <- apply(Ayuntamiento[Ayu_2013], 1, max)
 Ayuntamiento_2010_votos <- apply(Ayuntamiento[Ayu_2010], 1, max)
-
 
 Ganador_Gubernatura <- data.frame(Gubernatura[,1:3], 
                                   Gubernatura_2021, Gubernatura_2019, Gubernatura_2013,
@@ -433,11 +463,8 @@ Ganador_Ayuntamiento <- data.frame(Ayuntamiento[,1:3],
 # ====================================================================================================
 
 
-# 
-
-Ganador_Gubernatura[,4:6] <- lapply(Ganador_Gubernatura[,4:6], function(x) sub("_\\d+$", "", x))
-Ganador_Diputados[,4:8] <- lapply(Ganador_Diputados[,4:8], function(x) sub("_\\d+$", "", x))
-Ganador_Ayuntamiento[,4:8] <- lapply(Ganador_Ayuntamiento[,4:8], function(x) sub("_\\d+$", "", x))
+# Now we will find how many vote would every party and alliance would have gotten
+# using the new redistricting  
 
 Resultados_Gubernatura_Distrito <- Gubernatura %>%
   group_by(DISTRITO_2021) %>%
@@ -455,11 +482,35 @@ Resultados_Ayuntamiento_Distrito <- Ayuntamiento %>%
 # ====================================================================================================
 # ====================================================================================================
 
-Ganador_Gubernatura[,4:6]
-Ganador_Diputados[,4:8] 
-Ganador_Ayuntamiento[,4:8]
-#
 
+# We proceed to create a summary table pointing out winning party by election and how many votes 
+# would have gotten, again, with the new redistricting. To find Party with most wins (occurrence) 
+# we must standardize deleting the election year that follows
+
+Ganador_Gubernatura[,4:6] <- lapply(Ganador_Gubernatura[,4:6], function(x) sub("_\\d+$", "", x))
+Ganador_Diputados[,4:8] <- lapply(Ganador_Diputados[,4:8], function(x) sub("_\\d+$", "", x))
+Ganador_Ayuntamiento[,4:8] <- lapply(Ganador_Ayuntamiento[,4:8], function(x) sub("_\\d+$", "", x))
+
+
+# Now that our 
+table(nchar(Ganador_Gubernatura$SECCION))
+mistakes_location  <- which(nchar(Ganador_Gubernatura$SECCION) != 4)
+(Ganador_Gubernatura$SECCION[c(mistakes_location)])
+
+Ganador_Gubernatura$SECCION <- gsub("\\s", "0", format(Ganador_Gubernatura$SECCION,  justify = c("right"), width = 4))
+Ganador_Diputados$SECCION <- gsub("\\s", "0", format(Ganador_Diputados$SECCION,  justify = c("right"), width = 4))
+Ganador_Ayuntamiento$SECCION <- gsub("\\s", "0", format(Ganador_Ayuntamiento$SECCION,  justify = c("right"), width = 4))
+
+table(is.na(Ganador_Gubernatura))
+Ganador_Gubernatura_completo <- na.omit(Ganador_Gubernatura)
+Ganador_Diputados_completo <- na.omit(Ganador_Diputados)
+Ganador_Ayuntamiento_completo <- na.omit(Ganador_Ayuntamiento)
+
+table(is.na(Ganador_Gubernatura_completo))
+
+
+test <- apply(Ganador_Ayuntamiento_completo[,5:8], 1, function(x) names(which.max(table(x))))
+test <- data.frame(test)
 
 # ====================================================================================================
 # ====================================================================================================

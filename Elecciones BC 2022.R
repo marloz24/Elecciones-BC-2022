@@ -32,7 +32,8 @@ Casilla_Gubernatura_2021 <- fread("https://raw.githubusercontent.com/marloz24/El
 # ====================================================================================================
 
 
-#We notice abstention and participation are char variable because of % replace and convert to numeric
+# We notice that a few columns are char tye, especiallt abstention and participation
+# because of % symbol, we will subtract it and convert columns to numeric type
 
 Casilla_Ayuntamiento_2010 <- data.frame(lapply(Casilla_Ayuntamiento_2010, function(x) gsub("%", "", x)))
 Casilla_Ayuntamiento_2013 <- data.frame(lapply(Casilla_Ayuntamiento_2013, function(x) gsub("%", "", x)))
@@ -71,7 +72,7 @@ Casilla_Gubernatura_2021[,5:29] <- sapply(Casilla_Gubernatura_2021[,5:29], as.nu
 # ====================================================================================================
 
 
-# We convert all NAs in all tables to 0
+# Just a standar practice, we will convert all NAs to 0
 
 Casilla_Ayuntamiento_2010[is.na(Casilla_Ayuntamiento_2010)] <- 0
 Casilla_Ayuntamiento_2013[is.na(Casilla_Ayuntamiento_2013)] <- 0
@@ -119,7 +120,9 @@ aggregate(Casilla_Gubernatura_2021$PAN, by = list(Category = Casilla_Gubernatura
 # ====================================================================================================
 
 
-# After validating csv match final published results, we format and standardized  our tables
+# We will format and standardized  our tables such that we have common row and column names
+
+# First we notice that in 2010 municipalities use an ID number, we will change it to their names
 
 Casilla_Ayuntamiento_2010$MUNICIPIO <- case_when(
   Casilla_Ayuntamiento_2010$MUNICIPIO == 1 ~ "ENSENADA",
@@ -134,9 +137,10 @@ Casilla_Diputados_2010$MUNICIPIO <- case_when(
   Casilla_Diputados_2010$MUNICIPIO == 4 ~ "TIJUANA",
   Casilla_Diputados_2010$MUNICIPIO == 5 ~ "ROSARITO")
 
+# In 2010 and 2013 results were not published desegregated manner, we will change the
+# name of the alliance to that of the leading party
 colnames(Casilla_Ayuntamiento_2010)
 colnames(Casilla_Diputados_2010)
-
 setnames(Casilla_Ayuntamiento_2010, old = c("CASILLA","CABC", "CGR", "CRBC"), 
          new = c("SECCION","PAN", "PRI", "PT"))
 setnames(Casilla_Diputados_2010, old = c("CASILLA", "CABC", "CGR", "CRBC"), 
@@ -155,19 +159,28 @@ setnames(Casilla_Gubernatura_2013, old = c("CASILLA", "UNIDOS.POR.BAJA.CALIFORNI
          new = c("SECCION", "PAN", "PRI"))
 
 
+# In 2016 and the following years the results were disaggregated, however, we aren't
+# interested in this type of detail, we will group the results by the leading party
+
+# In this election there was only one alliance lead by PRI, we will created a column name
+# PRI with the cumulative of votes and Pre_PRI will be votes that gather as standalone
+
 colnames(Casilla_Ayuntamiento_2016)
 colnames(Casilla_Diputados_2016)
 
-setnames(Casilla_Ayuntamiento_2016, old = c("PRI"), new = c("PRI"))
+setnames(Casilla_Ayuntamiento_2016, old = c("PRI"), new = c("Pre_PRI"))
 setnames(Casilla_Diputados_2016, old = c("PRI"), new = c("Pre_PRI"))
 
 Casilla_Ayuntamiento_2016 <- Casilla_Ayuntamiento_2016 %>%  
-  mutate(PRI = rowSums(select_(., "Pre_PRI", "C1", "C2", "C3", "C4", "C5", 
-                               "C6", "C7", "C8", "C9", "C10", "C11")), .after = "Pre_PRI")
+  mutate(PRI = rowSums(select(., "Pre_PRI", "C1", "C2", "C3", "C4", "C5", 
+                               "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_PRI")
 Casilla_Diputados_2016 <- Casilla_Diputados_2016 %>%  
-  mutate(PRI = rowSums(select_(., "Pre_PRI", "C1", "C2", "C3", "C4", "C5", 
-                               "C6", "C7", "C8", "C9", "C10", "C11")), .after = "Pre_PRI")
+  mutate(PRI = rowSums(select(., "Pre_PRI", "C1", "C2", "C3", "C4", "C5", 
+                               "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_PRI")
 
+# 2019 was the first election with Morena in ballot and it did as the only alliance
+# again, similarly we create Pre_Morena with standalone votes and Morena with how many
+# vote got in alliance
 
 colnames(Casilla_Ayuntamiento_2019)
 colnames(Casilla_Diputados_2019)
@@ -179,15 +192,16 @@ setnames(Casilla_Gubernatura_2019, old = c("MORENA"), new = c("Pre_Morena"))
 
 Casilla_Ayuntamiento_2019 <- Casilla_Ayuntamiento_2019 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "C1", "C2", "C3", "C4", "C5", 
-                               "C6", "C7", "C8", "C9", "C10", "C11")), .after = "Pre_Morena")
+                               "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_Morena")
 Casilla_Diputados_2019 <- Casilla_Diputados_2019 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "C1", "C2", "C3", "C4", "C5", 
-                               "C6", "C7", "C8", "C9", "C10", "C11")), .after = "Pre_Morena")
+                               "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_Morena")
 Casilla_Gubernatura_2019 <- Casilla_Gubernatura_2019 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "C1", "C2", "C3", "C4", "C5", 
-                               "C6", "C7", "C8", "C9", "C10", "C11")), .after = "Pre_Morena")
+                               "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_Morena")
 
-
+# In 2021 two major alliance were form, one with Morena and allies and the other with the
+# PRI and PAN as opposition. We will continue to create "Pre_" and standalone variables
 colnames(Casilla_Ayuntamiento_2021)
 colnames(Casilla_Diputados_2021)
 colnames(Casilla_Gubernatura_2021)
@@ -198,63 +212,52 @@ setnames(Casilla_Gubernatura_2021, old = c("MORENA"), new = c("Pre_Morena" ))
 
 Casilla_Ayuntamiento_2021 <- Casilla_Ayuntamiento_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
-                               "PAN...PRD", "PRI.PRD")), .after = "TIPO")
+                               "PAN...PRD", "PRI.PRD")), .before = "TIPO")
 Casilla_Ayuntamiento_2021 <- Casilla_Ayuntamiento_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
-                               "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
+                               "PT...MORENA", "PVEM...MORENA")), .before = "TIPO")
 Casilla_Diputados_2021 <- Casilla_Diputados_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
-                               "PAN...PRD", "PRI.PRD")), .after = "TIPO")
+                               "PAN...PRD", "PRI.PRD")), .before = "TIPO")
 Casilla_Diputados_2021 <- Casilla_Diputados_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
-                               "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
+                               "PT...MORENA", "PVEM...MORENA")), .before = "TIPO")
 Casilla_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
-                               "PAN...PRD", "PRI.PRD")), .after = "TIPO")
+                               "PAN...PRD", "PRI.PRD")), .before = "TIPO")
 Casilla_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
-                               "PT...MORENA", "PVEM...MORENA")), .after = "TIPO")
+                               "PT...MORENA", "PVEM...MORENA")), .before = "TIPO")
 
 
-Casilla_Ayuntamiento_2010[is.na(Casilla_Ayuntamiento_2010)] <- 0
-Casilla_Ayuntamiento_2013[is.na(Casilla_Ayuntamiento_2013)] <- 0
-Casilla_Ayuntamiento_2016[is.na(Casilla_Ayuntamiento_2016)] <- 0
-Casilla_Ayuntamiento_2019[is.na(Casilla_Ayuntamiento_2019)] <- 0
-Casilla_Ayuntamiento_2021[is.na(Casilla_Ayuntamiento_2021)] <- 0
+# ====================================================================================================
+# ====================================================================================================
 
-Casilla_Diputados_2010[is.na(Casilla_Diputados_2010)] <- 0
-Casilla_Diputados_2013[is.na(Casilla_Diputados_2013)] <- 0
-Casilla_Diputados_2016[is.na(Casilla_Diputados_2016)] <- 0
-Casilla_Diputados_2019[is.na(Casilla_Diputados_2019)] <- 0
-Casilla_Diputados_2021[is.na(Casilla_Diputados_2021)] <- 0
+# We notice that Seccion is a chr variable and that not all value are 4 digits length, we will fix this
+# again, to have standardized tables
 
-Casilla_Gubernatura_2013[is.na(Casilla_Gubernatura_2013)] <- 0
-Casilla_Gubernatura_2019[is.na(Casilla_Gubernatura_2019)] <- 0
-Casilla_Gubernatura_2021[is.na(Casilla_Gubernatura_2021)] <- 0
+Casilla_Ayuntamiento_2010$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2010$SECCION,  justify = c("right"), width = 4))
+Casilla_Ayuntamiento_2013$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2013$SECCION,  justify = c("right"), width = 4))
+Casilla_Ayuntamiento_2016$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2016$SECCION,  justify = c("right"), width = 4))
+Casilla_Ayuntamiento_2019$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2019$SECCION,  justify = c("right"), width = 4))
+Casilla_Ayuntamiento_2021$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2021$SECCION,  justify = c("right"), width = 4))
 
+Casilla_Diputados_2010$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2010$SECCION,  justify = c("right"), width = 4))
+Casilla_Diputados_2013$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2013$SECCION,  justify = c("right"), width = 4))
+Casilla_Diputados_2016$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2016$SECCION,  justify = c("right"), width = 4))
+Casilla_Diputados_2019$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2019$SECCION,  justify = c("right"), width = 4))
+Casilla_Diputados_2021$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2021$SECCION,  justify = c("right"), width = 4))
 
-# Casilla_Ayuntamiento_2010$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2010$SECCION,  justify = c("right"), width = 4))
-# Casilla_Ayuntamiento_2013$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2013$SECCION,  justify = c("right"), width = 4))
-# Casilla_Ayuntamiento_2016$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2016$SECCION,  justify = c("right"), width = 4))
-# Casilla_Ayuntamiento_2019$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2019$SECCION,  justify = c("right"), width = 4))
-# Casilla_Ayuntamiento_2021$SECCION <- gsub("\\s", "0", format(Casilla_Ayuntamiento_2021$SECCION,  justify = c("right"), width = 4))
-# 
-# Casilla_Diputados_2010$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2010$SECCION,  justify = c("right"), width = 4))
-# Casilla_Diputados_2013$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2013$SECCION,  justify = c("right"), width = 4))
-# Casilla_Diputados_2016$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2016$SECCION,  justify = c("right"), width = 4))
-# Casilla_Diputados_2019$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2019$SECCION,  justify = c("right"), width = 4))
-# Casilla_Diputados_2021$SECCION <- gsub("\\s", "0", format(Casilla_Diputados_2021$SECCION,  justify = c("right"), width = 4))
-# 
-# Casilla_Gubernatura_2013$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2013$SECCION,  justify = c("right"), width = 4))
-# Casilla_Gubernatura_2019$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2019$SECCION,  justify = c("right"), width = 4))
-# Casilla_Gubernatura_2021$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2021$SECCION,  justify = c("right"), width = 4))
+Casilla_Gubernatura_2013$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2013$SECCION,  justify = c("right"), width = 4))
+Casilla_Gubernatura_2019$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2019$SECCION,  justify = c("right"), width = 4))
+Casilla_Gubernatura_2021$SECCION <- gsub("\\s", "0", format(Casilla_Gubernatura_2021$SECCION,  justify = c("right"), width = 4))
+
 
 # ====================================================================================================
 # ====================================================================================================
 
 
-# Original election results come by polling place, we are interested in results by section
-# so we summarize
+# Original election results come by polling place, we are interested in results by section; we summarize
 
 Seccion_Ayuntamiento_2010 <- Casilla_Ayuntamiento_2010 %>% group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
   summarise_if(is.numeric, sum)
@@ -290,7 +293,7 @@ Seccion_Gubernatura_2021 <- Casilla_Gubernatura_2021 %>% group_by(MUNICIPIO, DIS
 # ====================================================================================================
 
 
-# Since participation and abstention rate were sum, we re-calculated them
+# We re-calculated Participation and Abstention rate since they were sum
 
 Seccion_Ayuntamiento_2010 <- Seccion_Ayuntamiento_2010 %>%  
   mutate(X..DE.PARTICIP. = (TOTAL.VOTOS / LISTA.NOMINAL)*100) %>%
@@ -341,7 +344,8 @@ Seccion_Gubernatura_2021 <- Seccion_Gubernatura_2021 %>%
 # ====================================================================================================
 
 
-# We procced build our historic databases
+# We are interested in a historical data table, to differentiate between elections
+# we will add the year in the column name
 
 colnames(Seccion_Ayuntamiento_2010)[-3] <- paste(colnames(Seccion_Ayuntamiento_2010)[-3], "2010", sep = "_")
 colnames(Seccion_Ayuntamiento_2013)[-3] <- paste(colnames(Seccion_Ayuntamiento_2013)[-3], "2013", sep = "_")
@@ -360,11 +364,15 @@ colnames(Seccion_Gubernatura_2019)[-3] <- paste(colnames(Seccion_Gubernatura_201
 colnames(Seccion_Gubernatura_2021)[-3] <- paste(colnames(Seccion_Gubernatura_2021)[-3], "2021", sep = "_")
 
 
+# Every election the electoral grows in number of section taking in consideration population growth
+# and urban expansion, because of it we will join our table using 2021 election as reference. Also
+# since we are interested in alliance and leading party, party alliance combination will be deleted 
+
 Ayuntamiento <- list(Seccion_Ayuntamiento_2021, Seccion_Ayuntamiento_2019, Seccion_Ayuntamiento_2016,
                      Seccion_Ayuntamiento_2013, Seccion_Ayuntamiento_2010) %>% 
   reduce(left_join, by = "SECCION")
 colnames(Ayuntamiento)
-Ayuntamiento[ ,c(22:29, 36:37, 48:58, 69:67, 84:94, 109:110)] <- list(NULL)
+Ayuntamiento[ ,c(22:29, 36:37, 48:58, 69:67, 84:95, 109:110)] <- list(NULL)
 colnames(Ayuntamiento)
 
 Diputados <- list(Seccion_Diputados_2021, Seccion_Diputados_2019, Seccion_Diputados_2016,
@@ -386,18 +394,18 @@ colnames(Gubernatura)
 # ====================================================================================================
 
 
-# Based on our historic database, we build a table with the winning party 
-# by election and how many votes it got
+# Based on our historical data table, we build a table with the winning party by election
+# and how many votes it got
 
 colnames(Gubernatura)
 Gub_2021 <- (4:16)
-Gub_2019 <- (23:33)
+Gub_2019 <- (25:34)
 Gub_2013 <- (39:41)
 
 colnames(Diputados)
-Dip_2021 <- (4:19)
+Dip_2021 <- (4:18)
 Dip_2019 <- (25:36)
-Dip_2016 <- (42:63)
+Dip_2016 <- (43:63)
 Dip_2013 <- (70:73)
 Dip_2010 <- (79:83)
 
@@ -408,19 +416,19 @@ Ayu_2016 <- (47:68)
 Ayu_2013 <- (74:77)
 Ayu_2010 <- (85:90)
 
-Gubernatura_2021 <- colnames(Gubernatura[,Gub_2021])[max.col((Gubernatura[,Gub_2021]))]
-Gubernatura_2019 <- colnames(Gubernatura[,Gub_2019])[max.col((Gubernatura[,Gub_2019]))]
-Gubernatura_2013 <- colnames(Gubernatura[,Gub_2013])[max.col((Gubernatura[,Gub_2013]))]
+Gubernatura_2021 <- colnames(Gubernatura[,Gub_2021])[max.col((Gubernatura[,Gub_2021]), ties.method = ("first"))]
+Gubernatura_2019 <- colnames(Gubernatura[,Gub_2019])[max.col((Gubernatura[,Gub_2019]), ties.method = ("first"))]
+Gubernatura_2013 <- colnames(Gubernatura[,Gub_2013])[max.col((Gubernatura[,Gub_2013]), ties.method = ("first"))]
 
 Gubernatura_2021_votos <- apply(Gubernatura[Gub_2021], 1, max)
 Gubernatura_2019_votos <- apply(Gubernatura[Gub_2019], 1, max)
 Gubernatura_2013_votos <- apply(Gubernatura[Gub_2013], 1, max)
 
-Diputados_2021 <- colnames(Diputados[,Dip_2021])[max.col((Diputados[,Dip_2021]))]
-Diputados_2019 <- colnames(Diputados[,Dip_2019])[max.col((Diputados[,Dip_2019]))]
-Diputados_2016 <- colnames(Diputados[,Dip_2016])[max.col((Diputados[,Dip_2016]))]
-Diputados_2013 <- colnames(Diputados[,Dip_2013])[max.col((Diputados[,Dip_2013]))]
-Diputados_2010 <- colnames(Diputados[,Dip_2010])[max.col((Diputados[,Dip_2010]))]
+Diputados_2021 <- colnames(Diputados[,Dip_2021])[max.col((Diputados[,Dip_2021]), ties.method = ("first"))]
+Diputados_2019 <- colnames(Diputados[,Dip_2019])[max.col((Diputados[,Dip_2019]), ties.method = ("first"))]
+Diputados_2016 <- colnames(Diputados[,Dip_2016])[max.col((Diputados[,Dip_2016]), ties.method = ("first"))]
+Diputados_2013 <- colnames(Diputados[,Dip_2013])[max.col((Diputados[,Dip_2013]), ties.method = ("first"))]
+Diputados_2010 <- colnames(Diputados[,Dip_2010])[max.col((Diputados[,Dip_2010]), ties.method = ("first"))]
 
 Diputados_2021_votos <- apply(Diputados[Dip_2021], 1, max)
 Diputados_2019_votos <- apply(Diputados[Dip_2019], 1, max)
@@ -428,11 +436,11 @@ Diputados_2016_votos <- apply(Diputados[Dip_2016], 1, max)
 Diputados_2013_votos <- apply(Diputados[Dip_2013], 1, max)
 Diputados_2010_votos <- apply(Diputados[Dip_2010], 1, max)
 
-Ayuntamiento_2021 <- colnames(Ayuntamiento[,Ayu_2021])[max.col((Ayuntamiento[,Ayu_2021]))]
-Ayuntamiento_2019 <- colnames(Ayuntamiento[,Ayu_2019])[max.col((Ayuntamiento[,Ayu_2019]))]
-Ayuntamiento_2016 <- colnames(Ayuntamiento[,Ayu_2016])[max.col((Ayuntamiento[,Ayu_2016]))]
-Ayuntamiento_2013 <- colnames(Ayuntamiento[,Ayu_2013])[max.col((Ayuntamiento[,Ayu_2013]))]
-Ayuntamiento_2010 <- colnames(Ayuntamiento[,Ayu_2010])[max.col((Ayuntamiento[,Ayu_2010]))]
+Ayuntamiento_2021 <- colnames(Ayuntamiento[,Ayu_2021])[max.col((Ayuntamiento[,Ayu_2021]), ties.method = ("first"))]
+Ayuntamiento_2019 <- colnames(Ayuntamiento[,Ayu_2019])[max.col((Ayuntamiento[,Ayu_2019]), ties.method = ("first"))]
+Ayuntamiento_2016 <- colnames(Ayuntamiento[,Ayu_2016])[max.col((Ayuntamiento[,Ayu_2016]), ties.method = ("first"))]
+Ayuntamiento_2013 <- colnames(Ayuntamiento[,Ayu_2013])[max.col((Ayuntamiento[,Ayu_2013]), ties.method = ("first"))]
+Ayuntamiento_2010 <- colnames(Ayuntamiento[,Ayu_2010])[max.col((Ayuntamiento[,Ayu_2010]), ties.method = ("first"))]
 
 Ayuntamiento_2021_votos <- apply(Ayuntamiento[Ayu_2021], 1, max)
 Ayuntamiento_2019_votos <- apply(Ayuntamiento[Ayu_2019], 1, max)
@@ -458,6 +466,7 @@ Ganador_Ayuntamiento <- data.frame(Ayuntamiento[,1:3],
                                    Ayuntamiento_2016_votos,Ayuntamiento_2013_votos, 
                                    Ayuntamiento_2010_votos)
 
+table(Ganador_Ayuntamiento$Ayuntamiento_2016)
 
 # ====================================================================================================
 # ====================================================================================================
@@ -492,16 +501,13 @@ Ganador_Diputados[,4:8] <- lapply(Ganador_Diputados[,4:8], function(x) sub("_\\d
 Ganador_Ayuntamiento[,4:8] <- lapply(Ganador_Ayuntamiento[,4:8], function(x) sub("_\\d+$", "", x))
 
 
-# Now that our 
-table(nchar(Ganador_Gubernatura$SECCION))
-mistakes_location  <- which(nchar(Ganador_Gubernatura$SECCION) != 4)
-(Ganador_Gubernatura$SECCION[c(mistakes_location)])
+# ====================================================================================================
+# ====================================================================================================
 
-Ganador_Gubernatura$SECCION <- gsub("\\s", "0", format(Ganador_Gubernatura$SECCION,  justify = c("right"), width = 4))
-Ganador_Diputados$SECCION <- gsub("\\s", "0", format(Ganador_Diputados$SECCION,  justify = c("right"), width = 4))
-Ganador_Ayuntamiento$SECCION <- gsub("\\s", "0", format(Ganador_Ayuntamiento$SECCION,  justify = c("right"), width = 4))
 
-table(is.na(Ganador_Gubernatura))
+# We already stated that electoral map is expanding every election meaning that newer
+# sections will have NAs in previous elections, for that we create "complete" tables
+
 Ganador_Gubernatura_completo <- na.omit(Ganador_Gubernatura)
 Ganador_Diputados_completo <- na.omit(Ganador_Diputados)
 Ganador_Ayuntamiento_completo <- na.omit(Ganador_Ayuntamiento)
@@ -509,8 +515,20 @@ Ganador_Ayuntamiento_completo <- na.omit(Ganador_Ayuntamiento)
 table(is.na(Ganador_Gubernatura_completo))
 
 
-test <- apply(Ganador_Ayuntamiento_completo[,5:8], 1, function(x) names(which.max(table(x))))
-test <- data.frame(test)
+# ====================================================================================================
+# ====================================================================================================
+
+# Our main interest is mapping what section traditionally vote for certain party
+# with Morena disruption, this can't be done by just obtain the most frequent winner
+# by seccion, so we have to write an algorithm to define section historical vote preference
+
+# In following table we we see how regardless of public position, Morena has
+# an overwhelming victory in terms of won sections
+
+table(Ganador_Ayuntamiento_completo$Ayuntamiento_2019)
+table(Ganador_Diputados_completo$Diputados_2019)
+table(Ganador_Gubernatura_completo$Gubernatura_2019)
+
 
 # ====================================================================================================
 # ====================================================================================================
@@ -546,46 +564,49 @@ test <- data.frame(test)
 # plot(Casillas)
 # str(Casillas)
 # Casillas$Description <- NULL
-# st_write(Casillas, dsn = "Casillas", driver= "kml", "Casillas.shp")
+## st_write(Casillas, dsn = "Casillas", driver= "kml", "Casillas.shp")
 
 # plot(Secciones)
 # str(Secciones)
 # Secciones$Description <- NULL
-# st_write(Secciones, dsn = "Secciones", driver= "ESRI Shapefile", "Secciones.shp")
+## st_write(Secciones, dsn = "Secciones", driver= "ESRI Shapefile", "Secciones.shp")
 
 # There are some inconsistencies in some section names, we proceed to fix it
 # First, wee need to subtract "Casilla ... B,C" 
+
 setwd("C:/Users/rmartinez/Desktop/Elecciones BC/Secciones")
 Secciones <- st_read("Secciones.shp")
+
+# Polygons name comes as "Casilla #### B,C" we will subtract the section out of it 
 correccion <- str_match(Secciones$Name, "Casilla \\s*(.*?)\\s*B,C")[,2]
 
-# As standar practice, we check for NA and fix them if they appear
+# As standard practice, we check for NA and fix them if they appear
 table(is.na(correccion))
 which(is.na(correccion))
 Secciones$Name[c(84, 85, 1724)]
 
+# correccion variable will store correct seccion names
 correccion[c(84, 85)] <- c(0217, 0218)
-correccion[1724] <- "0150"
+correccion[1724] <- "0150" # We found "0150" by checking adjacent rows
 
-#
-nchar(correccion)
+# Even when we have pulled the seccion number, we must ensure all value are 4 digit length
 
-mistakes_location  <- which(nchar(correccion) != 4)
-correccion[c(mistakes_location)]
-missing_0 <- which(nchar(correccion) == 3)
-correccion[c(missing_0)] <- paste("0", correccion[c(missing_0)], sep="")
-correccion[c(missing_0)]
+table(nchar(correccion))
 
-mistakes_location  <- which(nchar(correccion) != 4)
+mistakes_location  <- which(nchar(correccion) == 12)
 correccion[c(mistakes_location)]
 correccion[c(mistakes_location)] <- c("1943", "1945", "1946")
 correccion[c(mistakes_location)]
 
 which(nchar(correccion) != 4)
 
+correccion <- gsub("\\s", "0", format(correccion,  justify = c("right"), width = 4))
+
+# With correccion finally being correct, we replace
+Secciones$Name <- correccion
 
 # ====================================================================================================
 # ====================================================================================================
 
 
-# a 
+

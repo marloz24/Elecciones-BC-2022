@@ -1,6 +1,8 @@
 library(data.table)
 library(tidyverse)
 library(tidyselect)
+library(plotKML)
+library(gtools)
 library(dplyr)
 library(sf)
 
@@ -178,9 +180,9 @@ Casilla_Diputados_2016 <- Casilla_Diputados_2016 %>%
   mutate(PRI = rowSums(select(., "Pre_PRI", "C1", "C2", "C3", "C4", "C5", 
                                "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_PRI")
 
-# 2019 was the first election with Morena in ballot and it did as the only alliance
-# again, similarly we create Pre_Morena with standalone votes and Morena with how many
-# vote got in alliance
+# 2019 was the first election with Morena as major force and it did as the only 
+# alliance,similarly we create Pre_Morena with standalone votes and Morena with
+# how many vote got in alliance
 
 colnames(Casilla_Ayuntamiento_2019)
 colnames(Casilla_Diputados_2019)
@@ -201,7 +203,7 @@ Casilla_Gubernatura_2019 <- Casilla_Gubernatura_2019 %>%
                                "C6", "C7", "C8", "C9", "C10", "C11")), .before = "Pre_Morena")
 
 # In 2021 two major alliance were form, one with Morena and allies and the other with the
-# PRI and PAN as opposition. We will continue to create "Pre_" and standalone variables
+# PRI, PAN and PRD as "Coalision", We will continue to create "Pre_" and standalone variables
 colnames(Casilla_Ayuntamiento_2021)
 colnames(Casilla_Diputados_2021)
 colnames(Casilla_Gubernatura_2021)
@@ -219,6 +221,7 @@ Casilla_Ayuntamiento_2021 <- Casilla_Ayuntamiento_2021 %>%
 Casilla_Diputados_2021 <- Casilla_Diputados_2021 %>%  
   mutate(Coalicion = rowSums(select_(., "PAN", "PRI", "PRD", "PAN...PRI...PRD", "PAN...PRI",
                                "PAN...PRD", "PRI.PRD")), .before = "TIPO")
+
 Casilla_Diputados_2021 <- Casilla_Diputados_2021 %>%  
   mutate(Morena = rowSums(select_(., "Pre_Morena", "PT", "PVEM", "PT.PVEM.MORENA", "PT.PVEM", 
                                "PT...MORENA", "PVEM...MORENA")), .before = "TIPO")
@@ -399,22 +402,22 @@ colnames(Gubernatura)
 
 colnames(Gubernatura)
 Gub_2021 <- (4:16)
-Gub_2019 <- (25:34)
+Gub_2019 <- (23:32)
 Gub_2013 <- (39:41)
 
 colnames(Diputados)
 Dip_2021 <- (4:18)
 Dip_2019 <- (25:36)
 Dip_2016 <- (43:63)
-Dip_2013 <- (70:73)
+Dip_2013 <- (70:72)
 Dip_2010 <- (79:83)
 
 colnames(Ayuntamiento)
-Ayu_2021 <- (4:22)
-Ayu_2019 <- (28:42)
-Ayu_2016 <- (47:68)
-Ayu_2013 <- (74:77)
-Ayu_2010 <- (85:90)
+Ayu_2021 <- (4:21)
+Ayu_2019 <- (28:41)
+Ayu_2016 <- (47:67)
+Ayu_2013 <- (74:76)
+Ayu_2010 <- (85:89)
 
 Gubernatura_2021 <- colnames(Gubernatura[,Gub_2021])[max.col((Gubernatura[,Gub_2021]), ties.method = ("first"))]
 Gubernatura_2019 <- colnames(Gubernatura[,Gub_2019])[max.col((Gubernatura[,Gub_2019]), ties.method = ("first"))]
@@ -466,14 +469,14 @@ Ganador_Ayuntamiento <- data.frame(Ayuntamiento[,1:3],
                                    Ayuntamiento_2016_votos,Ayuntamiento_2013_votos, 
                                    Ayuntamiento_2010_votos)
 
-table(Ganador_Ayuntamiento$Ayuntamiento_2016)
+table(Ganador_Ayuntamiento$Ayuntamiento_2016, Ganador_Ayuntamiento$MUNICIPIO_2021)
 
 # ====================================================================================================
 # ====================================================================================================
 
 
 # Now we will find how many vote would every party and alliance would have gotten
-# using the new redistricting  
+# using the NEW redistricting  
 
 Resultados_Gubernatura_Distrito <- Gubernatura %>%
   group_by(DISTRITO_2021) %>%
@@ -512,6 +515,10 @@ Ganador_Gubernatura_completo <- na.omit(Ganador_Gubernatura)
 Ganador_Diputados_completo <- na.omit(Ganador_Diputados)
 Ganador_Ayuntamiento_completo <- na.omit(Ganador_Ayuntamiento)
 
+rownames(Ganador_Gubernatura_completo) <- NULL 
+rownames(Ganador_Diputados_completo) <- NULL 
+rownames(Ganador_Ayuntamiento_completo) <- NULL 
+
 table(is.na(Ganador_Gubernatura_completo))
 
 
@@ -529,6 +536,56 @@ table(Ganador_Ayuntamiento_completo$Ayuntamiento_2019)
 table(Ganador_Diputados_completo$Diputados_2019)
 table(Ganador_Gubernatura_completo$Gubernatura_2019)
 
+colnames(Ganador_Ayuntamiento_completo)
+
+
+#rows, columns
+datos <- Ganador_Ayuntamiento_completo
+T1 <- 4:5
+T2 <- 6:8
+output_T1 <- c()
+output_T2 <- c()
+wildcard = "Coalicion"
+
+for (row in 1:nrow(datos)) {  
+
+  ifelse(
+    # Here we evaluate equality among values and use a wildcard
+    ((datos[row,4] == datos[row,5]) | (datos[row,4] == wildcard)) & (datos[row,5] == datos[row,6]) & 
+            (datos[row,6] == datos[row,7]) & (datos[row,7] == datos[row,8]),
+
+          # if TRUE we assign Dominio + Party name to both outputs
+          output_T1[row] <- output_T2[row] <- paste("Dominio", datos[row,5]),
+          # if FALSE, we create two tables for our two periods of analysis
+          {Tiempo1 = datos[,T1]; Tiempo2 = datos[,T2];
+          
+          # Knowing there isn't a dominating party, we check if there's a tendency or alternation
+          # First period test
+          ifelse( (Tiempo1[row,1] == Tiempo1[row,2]),
+                  output_T1[row] <- (paste("Tendencia", Tiempo1[row,1])),
+                  output_T1[row] <-("Alternancia")
+                )
+          # Second period test
+          ifelse( (Tiempo2[row,1] == Tiempo2[row,2]) & (Tiempo2[row,2] == Tiempo2[row,3]),
+                  output_T2[row] <- (paste("Tendencia", Tiempo2[row,1])),
+                  output_T2[row] <- ("Alternancia")
+                )
+          }
+  )
+  }
+
+table(output_T1)
+table(output_T2)
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# Before working with our district map, we will add our new data to our "Ganador" tables
+
+Ganador_Ayuntamiento_completo$Perido_2019_21 <- output_T1
+Ganador_Ayuntamiento_completo$Perido_2010_16 <- output_T2
 
 # ====================================================================================================
 # ====================================================================================================
@@ -537,45 +594,46 @@ table(Ganador_Gubernatura_completo$Gubernatura_2019)
 # In www.plataformadetransparencia.org.mx we found a KML map from the 2013 State Election,
 # we will convert it to SHP and add our working columns to plot maps as we prefer 
 
-# all_layers <- st_layers("Distritacion 2013.kml")
-# all_layers <- as.vector(all_layers$name)
- 
-# Casillas <- data.frame()
-# Secciones <- data.frame()
-# 
-# elemento <- st_read("Distritacion 2013.kml", layer = "SECCION_0150.KML")
-# Casillas <- elemento[1,]
-# Secciones <- elemento[2,]
- 
-# for (i in all_layers) {
-# 
-#   elemento <- st_read("Distritacion 2013.kml", layer = i)
-#   
-#   Casillas <- rbind(Casillas, elemento[1,])
-#   Secciones <- rbind(Secciones, elemento[2,])
-#   Secciones$Name <- Casillas$Name
-# 
-# }
+all_layers <- st_layers("Distritacion 2013.kml")
+all_layers <- as.vector(all_layers$name)
+
+Casillas <- data.frame()
+Secciones <- data.frame()
+
+elemento <- st_read("Distritacion 2013.kml", layer = "SECCION_0150.KML")
+Casillas <- elemento[1,]
+Secciones <- elemento[2,]
+
+#for (i in all_layers) {
+
+   elemento <- st_read("Distritacion 2013.kml", layer = i)
+
+   Casillas <- rbind(Casillas, elemento[1,])
+   Secciones <- rbind(Secciones, elemento[2,])
+   Secciones$Name <- Casillas$Name
+
+ }
 
 # We make sure our SHP file is plotted as it has to and save them
 
-# st_drivers()
+st_drivers()
 
-# plot(Casillas)
-# str(Casillas)
-# Casillas$Description <- NULL
-## st_write(Casillas, dsn = "Casillas", driver= "kml", "Casillas.shp")
+plot(Casillas)
+str(Casillas)
+Casillas$Description <- NULL
+# st_write(Casillas, dsn = "Casillas", driver= "kml", "Casillas.shp")
 
-# plot(Secciones)
-# str(Secciones)
-# Secciones$Description <- NULL
-## st_write(Secciones, dsn = "Secciones", driver= "ESRI Shapefile", "Secciones.shp")
+plot(Secciones)
+str(Secciones)
+Secciones$Description <- NULL
+# st_write(Secciones, dsn = "Secciones", driver= "ESRI Shapefile", "Secciones.shp")
 
 # There are some inconsistencies in some section names, we proceed to fix it
 # First, wee need to subtract "Casilla ... B,C" 
 
 setwd("C:/Users/rmartinez/Desktop/Elecciones BC/Secciones")
 Secciones <- st_read("Secciones.shp")
+plot(Secciones)
 
 # Polygons name comes as "Casilla #### B,C" we will subtract the section out of it 
 correccion <- str_match(Secciones$Name, "Casilla \\s*(.*?)\\s*B,C")[,2]
@@ -604,9 +662,24 @@ correccion <- gsub("\\s", "0", format(correccion,  justify = c("right"), width =
 
 # With correccion finally being correct, we replace
 Secciones$Name <- correccion
+colnames(Secciones)[1] <- "SECCION"
 
 # ====================================================================================================
 # ====================================================================================================
 
+str(Secciones)
+Secciones <- list(Secciones, Ganador_Ayuntamiento_completo) %>% 
+  reduce(left_join, by = "SECCION")
+
+Secciones <- na.omit(Secciones)
+rownames(Secciones) <- NULL
+table(Secciones$Perido_2019_21)
+
+# Remember to change BOTH values
+for (categorias in unique(Secciones$Perido_2019_21)) {
+  print(categorias)
+  pre_mapa <- subset(Secciones, Secciones$Perido_2019_21 == categorias)
+  plotKML(pre_mapa, categorias, plot.labpt = FALSE)
+}
 
 

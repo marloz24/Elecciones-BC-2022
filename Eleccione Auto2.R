@@ -38,23 +38,23 @@ CASILLAS <- lapply(CASILLAS, transform, DISTRITO = (gsub(" ", "",DISTRITO)))
 
 arabigos_romanos <- function(x) {
   x %>% mutate(DISTRITO = case_when(DISTRITO == "I" ~ "1",
-                                DISTRITO == "II" ~ "2",
-                                DISTRITO == "III" ~ "3",
-                                DISTRITO == "IV" ~ "4",
-                                DISTRITO == "V" ~ "5",
-                                DISTRITO == "VI" ~ "6",
-                                DISTRITO == "VII" ~ "7",
-                                DISTRITO == "VIII" ~ "8",
-                                DISTRITO == "IX" ~ "9",
-                                DISTRITO == "X" ~ "10",
-                                DISTRITO == "XI" ~ "11",
-                                DISTRITO == "XII" ~ "12",
-                                DISTRITO == "XIII" ~ "13",
-                                DISTRITO == "XIV" ~ "14",
-                                DISTRITO == "XV" ~ "15",
-                                DISTRITO == "XVI" ~ "16",
-                                TRUE ~ as.character(DISTRITO)
-                                ))
+                                    DISTRITO == "II" ~ "2",
+                                    DISTRITO == "III" ~ "3",
+                                    DISTRITO == "IV" ~ "4",
+                                    DISTRITO == "V" ~ "5",
+                                    DISTRITO == "VI" ~ "6",
+                                    DISTRITO == "VII" ~ "7",
+                                    DISTRITO == "VIII" ~ "8",
+                                    DISTRITO == "IX" ~ "9",
+                                    DISTRITO == "X" ~ "10",
+                                    DISTRITO == "XI" ~ "11",
+                                    DISTRITO == "XII" ~ "12",
+                                    DISTRITO == "XIII" ~ "13",
+                                    DISTRITO == "XIV" ~ "14",
+                                    DISTRITO == "XV" ~ "15",
+                                    DISTRITO == "XVI" ~ "16",
+                                    TRUE ~ as.character(DISTRITO)
+                                    ))
 }
 CASILLAS <- lapply(CASILLAS, arabigos_romanos)
 remove(arabigos_romanos)
@@ -64,13 +64,13 @@ unique(unlist(lapply(CASILLAS, `[[`, "MUNICIPIO")))
 
 municipalities_name <- function(x) {
   x %>% mutate(MUNICIPIO = case_when(MUNICIPIO == 1 ~ "ENSENADA",
-                                 MUNICIPIO == 2 ~ "MEXICALI",
-                                 MUNICIPIO == 3 ~ "TECATE",
-                                 MUNICIPIO == 4 ~ "TIJUANA",
-                                 MUNICIPIO == 5 ~ "ROSARITO",
-                                 MUNICIPIO == "P DE ROSARITO" ~ "ROSARITO",
-                                 MUNICIPIO == "P. ROSARITO" ~ "ROSARITO",
-                                 MUNICIPIO == "P. DE ROSARITO" ~ "ROSARITO",
+                                     MUNICIPIO == 2 ~ "MEXICALI",
+                                     MUNICIPIO == 3 ~ "TECATE",
+                                     MUNICIPIO == 4 ~ "TIJUANA",
+                                     MUNICIPIO == 5 ~ "ROSARITO",
+                                     MUNICIPIO == "P DE ROSARITO" ~ "ROSARITO",
+                                     MUNICIPIO == "P. ROSARITO" ~ "ROSARITO",
+                                     MUNICIPIO == "P. DE ROSARITO" ~ "ROSARITO",
                                 TRUE ~ as.character(MUNICIPIO)
     ))
 }
@@ -81,103 +81,103 @@ remove(municipalities_name)
 # Parties that lead an alliance will have a "Pre_" added to them, later on will be explained why
 colnames(CASILLAS[["Ayuntamiento_2010"]])
 colnames(CASILLAS[["Diputados_2010"]])
-names(CASILLAS[["Ayuntamiento_2010"]]) <- c("DISTRITO","MUNICIPIO","SECCION","TIPO","PAN","PRI","PRD","PT",
-                                               "PEBC","VOTO_NULO","TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION",
-                                               "ABSTENCION")
-names(CASILLAS[["Diputados_2010"]]) <- c("DISTRITO","MUNICIPIO","SECCION","TIPO","PAN","PRI","PRD","PT",
-                                               "PEBC","VOTO_NULO","TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION",
-                                               "ABSTENCION")
+names(CASILLAS[["Ayuntamiento_2010"]]) <- c("Distrito","Municipio","Seccion","Tipo","PAN","PRI","PRD","PT",
+                                               "PEBC","Voto_Nulo","Total_Votos","Lista_Nominal","Participacion",
+                                               "Abstencion")
+names(CASILLAS[["Diputados_2010"]]) <- c("Distrito","Municipio","Seccion","Tipo","PAN","PRI","PRD","PT",
+                                               "PEBC","Voto_Nulo","Total_Votos","Lista_Nominal","Participacion",
+                                               "Abstencion")
 
 colnames(CASILLAS[["Ayuntamiento_2013"]])
 colnames(CASILLAS[["Diputados_2013"]])
 colnames(CASILLAS[["Gubernatura_2013"]])
-names(CASILLAS[["Ayuntamiento_2013"]]) <- c("MUNICIPIO", "DISTRITO","SECCION","TIPO",
-                                            "PAN","PRI","MC","NO_REGISTRADOS","VOTO_NULO"
-                                            ,"TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
-names(CASILLAS[["Diputados_2013"]]) <- c("MUNICIPIO", "DISTRITO","SECCION","TIPO",
-                                            "PAN","PRI","MC","NO_REGISTRADOS","VOTO_NULO"
-                                            ,"TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
-names(CASILLAS[["Gubernatura_2013"]]) <- c("MUNICIPIO", "DISTRITO","SECCION","TIPO",
-                                              "PAN","PRI","MC","NO_REGISTRADOS","VOTO_NULO"
-                                              ,"TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+names(CASILLAS[["Ayuntamiento_2013"]]) <- c("Municipio", "Distrito","Seccion","Tipo",
+                                            "PAN","PRI","MC","NO_REGISTRADOS","Voto_Nulo"
+                                            ,"Total_Votos","Lista_Nominal","Participacion","Abstencion")
+names(CASILLAS[["Diputados_2013"]]) <- c("Municipio", "Distrito","Seccion","Tipo",
+                                            "PAN","PRI","MC","NO_REGISTRADOS","Voto_Nulo"
+                                            ,"Total_Votos","Lista_Nominal","Participacion","Abstencion")
+names(CASILLAS[["Gubernatura_2013"]]) <- c("Municipio", "Distrito","Seccion","Tipo",
+                                              "PAN","PRI","MC","NO_REGISTRADOS","Voto_Nulo"
+                                              ,"Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
 colnames(CASILLAS[["Ayuntamiento_2016"]])
 colnames(CASILLAS[["Diputados_2016"]])
-names(CASILLAS[["Ayuntamiento_2016"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","Pre_PRI","PRD","PT",
-                                            "PVEM","PBC","PANAL","PES","MC","MORENA","PPC","MUNICIPALISTA",
+names(CASILLAS[["Ayuntamiento_2016"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","Pre_PRI","PRD","PT",
+                                            "PVEM","PBC","PANAL","PES","MC","Morena","PPC","MUNICIPALISTA",
                                             "HUMANISTA","C1","C2","C3","C4","C5","C6","C7","C8","C9" ,"C10",
                                             "C11","CESAR_IVAN","GASTON_LUKEN","CAROLINA_AUBANEL",
                                             "JESUS_ALFREDO","OMAR_GARCIA","JUAN_CARLOS","FRANCISCO_DEL_CASTILLO",
-                                            "JOSE_LUIS_MAR", "NO_REGISTRADOS","VOTO_NULO",
-                                            "TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+                                            "JOSE_LUIS_MAR", "NO_REGISTRADOS","Voto_Nulo",
+                                            "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
-names(CASILLAS[["Diputados_2016"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","Pre_PRI","PRD","PT",
-                                               "PVEM","PBC","PANAL","PES","MC","MORENA","PPC","MUNICIPALISTA",
+names(CASILLAS[["Diputados_2016"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","Pre_PRI","PRD","PT",
+                                               "PVEM","PBC","PANAL","PES","MC","Morena","PPC","MUNICIPALISTA",
                                                "HUMANISTA","C1","C2","C3","C4","C5","C6","C7","C8","C9" ,"C10",
                                                "C11","DAYLIN_GARCIA","CORDELIA_CASAS","BLANCA_ESPERANZA",
-                                               "RUBEN.FERNANDEZ","ERWIN_JORGE","ADOLFO_CALLETTE","LUIS_HILARIO",
-                                               "NO_REGISTRADOS","VOTO_NULO",
-                                               "TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+                                               "RUBEN_FERNANDEZ","ERWIN_JORGE","ADOLFO_CALETTE","LUIS_HILARIO",
+                                               "NO_REGISTRADOS","Voto_Nulo",
+                                               "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
 colnames(CASILLAS[["Ayuntamiento_2019"]])
 colnames(CASILLAS[["Diputados_2019"]])
 colnames(CASILLAS[["Gubernatura_2019"]])
-names(CASILLAS[["Ayuntamiento_2019"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","PRI","PRD",
+names(CASILLAS[["Ayuntamiento_2019"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD",
                                                "PVEM","PT","PBC","TRANS","MC","Pre_MORENA","C1","C2","C3",
                                                "C4","C5","C6","C7","C8","C9","C10","C11","Alfredo_Moreno",
                                                "Kevin_Fernando", "Gustavo_Flores","Rogelio_Castro",
-                                               "NO_REGISTRADOS","VOTO_NULO",
-                                               "TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+                                               "No_Registrados","Voto_Nulo",
+                                               "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
-names(CASILLAS[["Diputados_2019"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","PRI","PRD",
+names(CASILLAS[["Diputados_2019"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD",
                                                "PVEM","PT","PBC","TRANS","MC","Pre_MORENA","C1","C2","C3",
                                                "C4","C5","C6","C7","C8","C9","C10","C11","Fernanda_Angelica",
-                                               "Tadeo_Javier.", "NO_REGISTRADOS","VOTO_NULO",
-                                               "TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+                                               "Tadeo_Javier", "No_Registrados","Voto_Nulo",
+                                               "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
-names(CASILLAS[["Gubernatura_2019"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","PRI","PRD",
+names(CASILLAS[["Gubernatura_2019"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD",
                                             "PVEM","PT","PBC","TRANS","MC","Pre_MORENA","C1","C2","C3",
                                             "C4","C5","C6","C7","C8","C9","C10","C11",
-                                            "NO_REGISTRADOS","VOTO_NULO",
-                                            "TOTAL_VOTOS","LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+                                            "No_Registrados","Voto_Nulo",
+                                            "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
 colnames(CASILLAS[["Ayuntamiento_2021"]])
 colnames(CASILLAS[["Diputados_2021"]])
 colnames(CASILLAS[["Gubernatura_2021"]])
-names(CASILLAS[["Ayuntamiento_2021"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","PRI","PRD",
+names(CASILLAS[["Ayuntamiento_2021"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD",
                                                "PT","PVEM","PBC","MC","Pre_MORENA","PES","RSP","FXM",
-                                               "Rogelio_Castro","Marco_Antonio.","Cesar_Ivan","Celso_Arturo",
+                                               "Rogelio_Castro","Marco_Antonio","Cesar_Ivan","Celso_Arturo",
                                                "Luis_Fernando","PAN_PRI_PRD","PAN_PRI","PAN_PRD","PRI_PRD",
                                                "PT_PVEM_MORENA","PT_PVEM","PT_MORENA","PVEM_MORENA",
-                                               "NO_REGISTRADOS","VOTO_NULO","TOTAL_VOTOS","LISTA_NOMINAL",
-                                               "PARTICIPACION","ABSTENCION")
+                                               "NO_REGISTRADOS","Voto_Nulo","Total_Votos","Lista_Nominal",
+                                               "Participacion","Abstencion")
 
-names(CASILLAS[["Diputados_2021"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","PRI","PRD","PT",
+names(CASILLAS[["Diputados_2021"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD","PT",
                                             "PVEM","PBC","MC","Pre_MORENA","PES","RSP","FXM","Jose_Antonio",
                                             "Ramiro_Orea","PAN_PRI_PRD","PAN_PRI","PAN_PRD","PRI_PRD",
                                             "PT_PVEM_MORENA","PT_PVEM","PT_MORENA","PVEM_MORENA",
-                                            "NO_REGISTRADOS","VOTO_NULO","TOTAL_VOTOS","LISTA_NOMINAL",
-                                            "PARTICIPACION","ABSTENCION" )
-names(CASILLAS[["Gubernatura_2021"]]) <- c("MUNICIPIO","DISTRITO","SECCION","TIPO","PAN","PRI","PRD","PT",
+                                            "NO_REGISTRADOS","Voto_Nulo","Total_Votos","Lista_Nominal",
+                                            "Participacion","Abstencion" )
+names(CASILLAS[["Gubernatura_2021"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD","PT",
                                             "PVEM","PBC","MC","Pre_MORENA","PES","RSP","FXM","PAN_PRI_PRD","PAN_PRI",
                                             "PAN_PRD","PRI_PRD","PT_PVEM_MORENA","PT_PVEM","PT_MORENA",
-                                            "PVEM_MORENA","NO_REGISTRADOS","VOTO_NULO","TOTAL_VOTOS",
-                                            "LISTA_NOMINAL","PARTICIPACION","ABSTENCION")
+                                            "PVEM_MORENA","NO_REGISTRADOS","Voto_Nulo","Total_Votos",
+                                            "Lista_Nominal","Participacion","Abstencion")
 
 
 # ====================================================================================================
 # ====================================================================================================
 
 
-# SECCIONs are identify by a number however they are meaningless for numeric operations,
-# for standardization sake we add 0's to SECCION and make them all a four digit number 
+# Seccions are identify by a number however they are meaningless for numeric operations,
+# for standardization sake we add 0's to Seccion and make them all a four digit number 
 
-CASILLAS <- lapply(CASILLAS, transform, SECCION = 
-                     gsub("\\s", "0", format(SECCION,  justify = c("right"), width = 4)))
+CASILLAS <- lapply(CASILLAS, transform, Seccion = 
+                     gsub("\\s", "0", format(Seccion,  justify = c("right"), width = 4)))
 
-# Transform PARTICIPACION and ABSTENCION from char to numeric and take % out
-CASILLAS <- lapply(CASILLAS, transform, PARTICIPACION = as.numeric(gsub("%", "",PARTICIPACION)))
-CASILLAS <- lapply(CASILLAS, transform, ABSTENCION = as.numeric(gsub("%", "",ABSTENCION)))
+# Transform Participacion and Abstencion from char to numeric and take % out
+CASILLAS <- lapply(CASILLAS, transform, Participacion = as.numeric(gsub("%", "",Participacion)))
+CASILLAS <- lapply(CASILLAS, transform, Abstencion = as.numeric(gsub("%", "",Abstencion)))
 
 # Convert everything to numeric except first four columns
 CASILLAS <- lapply(CASILLAS, function(x) {
@@ -219,14 +219,12 @@ CASILLAS[y2016] <- lapply(CASILLAS[y2016], sum_party,
                                        "C10", "C11"),
                           position = "Pre_PRI")
 
-
 # In 2019 MORENA led the only alliance 
 CASILLAS[y2019] <- lapply(CASILLAS[y2019], sum_party, 
                          leading = "Morena",
                          alliance = c("Pre_MORENA", "C1", "C2", "C3", "C4", "C5","C6", "C7", "C8", "C9",
                                       "C10", "C11"),
                          position = "Pre_MORENA")
-
 
 # In 2021 there were 2 alliance, one led by MORENA and a Coalision by PAN + PRI + PRD
 colnames(CASILLAS[["Ayuntamiento_2021"]])
@@ -244,21 +242,21 @@ remove(CASILLASnames, y2010, y2013, y2016, y2019, y2021)
 
 
 # The first elections results were published by polling station therefore subsequent elections were
-# downloaded in the same way. However we are  interested in analyzing polling place = SECCION so
-# we create a function to aggregate polling station results into SECCION results
+# downloaded in the same way. However we are  interested in analyzing polling place = Seccion so
+# we create a function to aggregate polling station results into Seccion results
 
 groupby_summariseif <- function(x) {
   x %>%
-    group_by(MUNICIPIO, DISTRITO, SECCION) %>% 
+    group_by(Municipio, Distrito, Seccion) %>% 
                  summarise_if(is.double, sum)
 }
 SECCIONES <- lapply(CASILLAS, groupby_summariseif)
 
-# Aggregated results for PARTICIPACION and ABSTENCION aren't the actual values, we recalculate them
+# Aggregated results for Participacion and Abstencion aren't the actual values, we recalculate them
 part_abst <- function(x) {
   x %>%
-    mutate(PARTICIPACION = (TOTAL_VOTOS / LISTA_NOMINAL) * 100) %>%
-    mutate(ABSTENCION = (100 - PARTICIPACION))
+    mutate(Participacion = (Total_Votos / Lista_Nominal) * 100) %>%
+    mutate(Abstencion = (100 - Participacion))
 }
 SECCIONES <- lapply(SECCIONES, part_abst)
 
@@ -270,48 +268,38 @@ remove(groupby_summariseif, part_abst)
 
 
 # Since we are interested in alliances and leading parties, we delete party alliance combination 
-
-colnames(HISTORICOS[["Ayuntamiento"]])
-review <- colnames(HISTORICOS[["Ayuntamiento"]][c(21:28, 35:36, 47:57, 68:69, 84:94, 109:110)])
-HISTORICOS[["Ayuntamiento"]][(review)] <- list(NULL)
-colnames(HISTORICOS[["Ayuntamiento"]])
-
-colnames(HISTORICOS[["Diputados"]])
-review <- colnames(HISTORICOS[["Diputados"]][c(18:25, 32:33, 44:54, 63:64, 79:89, 103:104, 114:115)])
-HISTORICOS[["Diputados"]][(review)] <- list(NULL)
-colnames(HISTORICOS[["Diputados"]])
-
-colnames(HISTORICOS[["Gubernatura"]])
-review <- colnames(HISTORICOS[["Gubernatura"]][c(16:23, 30:31, 42:52, 59:60)])
-HISTORICOS[["Gubernatura"]][(review)] <- list(NULL)
-colnames(HISTORICOS[["Gubernatura"]])
-
+# Create list of unique names in data frame list, select unwanted columns and set them NULL
+all_names <- unique(unlist(sapply(SECCIONES, colnames)))
+all_names
+SECCIONES <- lapply(SECCIONES, function(x) {
+  x[c("PAN_PRI_PRD", "PAN_PRI", "PAN_PRD", "PRI_PRD", "PT_PVEM_MORENA", "PT_PVEM", 
+      "PT_MORENA", "PVEM_MORENA", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10",
+      "C11")] <- NULL; x })
+remove(all_names)
 
 # ====================================================================================================
 # ====================================================================================================
 
 
-# We are interested in a Historical data frame that shows election results for each goverment level
-# For that we create historic funcion
+# We are interested in a Historical data frame that shows election results for each government level
+# For that we create historic function
 
 historic <- function(base, level) {
-  # Temporarily helper table SECCIONES_year
-  SECCIONES_year <- base
-  
+  # Temporarily helper table Secciones_year
+  Secciones_year <- base
+
   # Add year to every column given election year
-  for( i in names(SECCIONES_year)){
-    past_names <- colnames(SECCIONES_year[[i]][4:ncol(SECCIONES_year[[i]])])
+  for( i in names(Secciones_year)){
     year <- (substr(i, nchar(i)-4, nchar(i)))
-    
-    new_names <- paste(past_names, year, sep="")
-    
-    colnames(SECCIONES_year[[i]])[4:ncol(SECCIONES_year[[i]])] <- c(new_names)
+    Secciones_year[[i]] <- Secciones_year[[i]] %>%
+      rename_with(~paste0(., year), -c("Seccion"))
   }
   
   # Join data frames at specified government level
-  datos <- SECCIONES_year[grepl(level, names(SECCIONES_year))]
+  datos <- Secciones_year[grepl(level, names(Secciones_year))]
   datos <- datos %>%
-    reduce(full_join, by = "SECCION")
+    reduce(full_join, by = "Seccion") %>%
+    select(-ends_with(".y"),-ends_with(".x.x"), -ends_with(".yy"))
   
   # Returns one data frame at time, Historical data frame needs to be create outside function
   return(datos)
@@ -329,54 +317,40 @@ HISTORICOS[["Diputados"]] <- historic(base = SECCIONES,
 HISTORICOS[["Gubernatura"]] <- historic(base = SECCIONES,
                                         level = "Gubernatura")
 
-# AQUI
-# AQUI
-# AQUI
-# AQUI
-# AQUI
-# AQUI
-
-# remove "review" helper variable and ".x" from MUNICIPIO, DISTRITO and SECCION columns
-remove(review)
-HISTORICOS <- lapply(HISTORICOS, function(x) {
-  colnames(x) <- gsub("[.x]", "", colnames(x))
-  return(x)
-})
-
-
 # ====================================================================================================
 # ====================================================================================================
 
-# winners create a historic table of winner party and the number of votes it got by seccion
+
+# winners create a historic table of winner party and the number of votes it got by Seccion
 winners <- function(base, level) {
-  # Temporarily helper table SECCIONES_year
-  SECCIONES_year <- base
+  # Temporarily helper table Secciones_year
+  Secciones_year <- base
   df_list <- list()
-  
+
   # Add year to every column given election year
-  for( i in names(SECCIONES_year)){
-    year <- (substr(i, nchar(i)-4, nchar(i)))
-    election_year <- paste("Ganador", year, sep="")
-    votes_year <- paste("Votos", year, sep="")
-    
-    # Take geo information and votes
-    geo <- SECCIONES_year[[i]][,1:3]
-    votes <- SECCIONES_year[[i]][,4:(ncol(SECCIONES_year[[i]])-6)] 
+  for( i in names(Secciones_year)){
+    # Substract year from each data frame
+    election_year <- substr(i, nchar(i)-4, nchar(i))
+
+    # Subset data frame to obtain geo and electoral information
+    geo <- Secciones_year[[i]][,1:3]
+    votes <- Secciones_year[[i]][,4:(ncol(Secciones_year[[i]])-6)] 
     
     # Select winner party and number of votes (max)
     winner_party <- colnames(votes)[max.col(votes,ties.method = ("first"))]
     party_votes <- apply(votes, 1, max)
     
-    nombres <- c("MUNICIPIO", "DISTRITO", "SECCION", election_year, votes_year)
     df_list[[i]] <- data.frame(geo, winner_party, party_votes)
-    colnames(df_list[[i]]) <- nombres
+    # colnames(df_list[[i]]) 
+    df_list[[i]] <- df_list[[i]] %>% 
+      `colnames<-`(c("Municipio", "Distrito", "Seccion", "Ganador", "Votos")) %>%
+      rename_with(~paste0(., election_year), -c("Seccion"))
   }
   
   # Join data frames at specified government level
   datos <- df_list[grepl(level, names(df_list))]
   datos <- datos %>%
-    reduce(full_join, by = "SECCION") %>%
-    select(-ends_with(".y"),-ends_with(".x.x"), -ends_with(".yy"))
+    reduce(full_join, by = "Seccion") #%>%
   
   return(datos)
 }
@@ -392,27 +366,27 @@ HISTORICOS_GANADORES[["Diputados"]] <- winners(base = SECCIONES,
 HISTORICOS_GANADORES[["Gubernatura"]] <- winners(base = SECCIONES,
                                                  level = "Gubernatura")
 
-HISTORICOS_GANADORES <- lapply(HISTORICOS_GANADORES, function(x) {
-  colnames(x) <- gsub("[.x]", "", colnames(x))
-  return(x)
-})
 
-# Previously we used a full_join to unite election by section, however, every election the of section 
+# ====================================================================================================
+# ====================================================================================================
 
-# Create COMPLETE data frame list, data frames keep previous row number,set them NULL to reset
+
+# Create COMPLETE data frame list. Data frames keep previous row number, set them NULL to reset
 HISTORICOS_GANADORES_COMPLETE <- lapply(HISTORICOS_GANADORES, na.omit)
 for (i in seq_along(HISTORICOS_GANADORES_COMPLETE)){
+  i <- "Ayuntamiento"
   rownames(HISTORICOS_GANADORES_COMPLETE[[i]]) <- NULL
-  HISTORICOS_GANADORES_COMPLETE[[i]][,c(ncol(HISTORICOS_GANADORES_COMPLETE[[i]])-3,
-                                        (ncol(HISTORICOS_GANADORES_COMPLETE[[i]])-2))] <- NULL
 }
+
 
 # ====================================================================================================
 # ====================================================================================================
+
 
 reparto <- function(base) {
   # Take winners historical table
-  df <- base[,c(seq(from=4, to=ncol(base), by = 2))]
+  df <- base
+  df <- df[grepl("Ganador", names(df))] 
   # Obtain number of occurrence (victories) each party has
   occurrence <- apply(df,MARGIN=1,table)
   # Transform table list into a data frame and delete index column
@@ -424,7 +398,7 @@ reparto <- function(base) {
   victories <- apply(occurrence, 1, max)
   party_victories <- data.frame(party, occurrence) 
   
-  # Classify secciones based on x party victories
+  # Classify Secciones based on x party victories
   party_victories <- party_victories %>% 
     mutate(Tendencia = case_when(victories == 5 ~ paste("Dominio", party, sep=" ") ,
                                victories == 3 | victories == 4 ~ paste("Tendencia", party, sep=" "),
@@ -432,10 +406,23 @@ reparto <- function(base) {
   ))
   
   df <- data.frame(base[,1:3], party_victories$Tendencia)
-  colnames(df) <- c("MUNICIPIO", "DISTRITO", "SECCION", "TENDENCIA")
+  colnames(df) <- c("Municipio", "Distrito", "Seccion", "Tendencia")
   return(df)
 }
 
 GANADORES_tendencia <- (lapply(HISTORICOS_GANADORES_COMPLETE, reparto))
-view(GANADORES_tendencia$Ayuntamiento)
-table(GANADORES_tendencia$Ayuntamiento$TENDENCIA)
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# In www.plataformadetransparencia.org.mx we found a KML map from the 2013 State Election,
+# we will convert it to SHP and add our working columns to plot maps as we prefer 
+
+setwd("C:/Users/rmartinez/Desktop/Elecciones BC")
+all_layers <- sf::st_layers("Distritacion 2013.kml")
+all_layers <- as.vector(all_layers$name)
+
+Casillas <- data.frame()
+Secciones <- data.frame()

@@ -412,6 +412,46 @@ reparto <- function(base) {
 
 GANADORES_tendencia <- (lapply(HISTORICOS_GANADORES_COMPLETE, reparto))
 
+remove(i)
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+estadisticos <- function(base, group, variables) {
+  #
+  base <- base %>%
+    group_by(...) %>%
+    ungroup() %>%
+    select(matches(variables))
+  
+  base = melt(base)
+  
+  # La funcion de moda no existe la defiimos
+  Modes <- function(x) {
+    ux <- unique(x)
+    tab <- tabulate(match(x, ux))
+    ux[tab == max(tab)]
+  }
+  
+  # Calculamos estadisticos de participación
+  estadisticos <- base %>% 
+    group_by_at(group) %>%   
+    summarise(across(everything(), 
+                     mean,
+                     Modes
+                     ))
+  
+  estadisticos <- Filter(function(x)!all(is.na(x)), estadisticos)
+  return(estadisticos)
+}
+
+HISTORICOS_COMPLETE <- lapply(HISTORICOS, na.omit)
+estadisticos_grles <- lapply(HISTORICOS_COMPLETE, estadisticos,
+                             group = "Distrito_2021")
+
+view(estadisticos_grles$Diputados)
+
 
 # ====================================================================================================
 # ====================================================================================================
@@ -420,9 +460,5 @@ GANADORES_tendencia <- (lapply(HISTORICOS_GANADORES_COMPLETE, reparto))
 # In www.plataformadetransparencia.org.mx we found a KML map from the 2013 State Election,
 # we will convert it to SHP and add our working columns to plot maps as we prefer 
 
-setwd("C:/Users/rmartinez/Desktop/Elecciones BC")
-all_layers <- sf::st_layers("Distritacion 2013.kml")
-all_layers <- as.vector(all_layers$name)
-
-Casillas <- data.frame()
-Secciones <- data.frame()
+setwd("C:/Users/rmartinez/Desktop/Elecciones BC/Secciones")
+Secciones <- st_read("Secciones.shp")

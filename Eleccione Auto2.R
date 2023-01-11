@@ -414,43 +414,64 @@ GANADORES_tendencia <- (lapply(HISTORICOS_GANADORES_COMPLETE, reparto))
 
 remove(i)
 
+
 # ====================================================================================================
 # ====================================================================================================
 
-
-estadisticos <- function(base, group, variables) {
+basic_stats <- function(datos, columnas) {
   #
+  base <- datos
+  by = c(as.character(groups(base)))
+  
   base <- base %>%
-    group_by(...) %>%
+    group_by_at(by) %>%
     ungroup() %>%
-    select(matches(variables))
+    select(matches(columnas))
   
-  base = melt(base)
+  base = melt(base, id.vars = NULL)
+  base$value <- round(base$value, 1)
   
-  # La funcion de moda no existe la defiimos
+  # Mode function does not exist, we define it
   Modes <- function(x) {
     ux <- unique(x)
-    tab <- tabulate(match(x, ux))
-    ux[tab == max(tab)]
+    ux[which.max(tabulate(match(x, ux)))]
   }
   
-  # Calculamos estadisticos de participación
+  # Calculate basic statistics
   estadisticos <- base %>% 
-    group_by_at(group) %>%   
-    summarise(across(everything(), 
-                     mean,
-                     Modes
-                     ))
+    group_by_at("variable") %>%   
+    summarise(Media = mean(value),
+              Medana = median(value),
+              Moda = Modes(value),
+              Total = sum(value)
+    )
   
-  estadisticos <- Filter(function(x)!all(is.na(x)), estadisticos)
-  return(estadisticos)
+  descriptivos <- Filter(function(x)!all(is.na(x)), estadisticos)
+  return(descriptivos)
 }
 
-HISTORICOS_COMPLETE <- lapply(HISTORICOS, na.omit)
-estadisticos_grles <- lapply(HISTORICOS_COMPLETE, estadisticos,
-                             group = "Distrito_2021")
 
-view(estadisticos_grles$Diputados)
+# ====================================================================================================
+# ====================================================================================================
+
+# Now that data is prepared for analysis, we analyze. We are interested in District 10 a
+
+# Frst thing is to find if the number of secciones has change over time
+
+Distrito_10 <- subset(HISTORICOS$Diputados, HISTORICOS$Diputados$Distrito_2021 == "10")
+num_secciones <- colSums(!is.na(Distrito_10))
+
+# Now we'll see how voter registration has change
+listado <- select(Distrito_10, matches("Lista_Nominal"))
+listado_descriptivo <- estadisticos(base = listado, "Lista_Nominal")
+
+# A
+HISTORICOS_COMPLETE <- lapply(HISTORICOS, na.omit)
+Distrito_10 <- subset(HISTORICOS_COMPLETE$Diputados, 
+                      HISTORICOS_COMPLETE$Diputados$Distrito_2021 == "10")
+
+estadisticos_grles <- basic_stats(datos = Distrito_10,
+                                  columnas = "Lista_Nominal")
 
 
 # ====================================================================================================
@@ -461,4 +482,5 @@ view(estadisticos_grles$Diputados)
 # we will convert it to SHP and add our working columns to plot maps as we prefer 
 
 setwd("C:/Users/rmartinez/Desktop/Elecciones BC/Secciones")
-Secciones <- st_read("Secciones.shp")
+Mapa_Casillas <- st_read("Casillas.shp")
+Mapa_Secciones <- st_read("Secciones.shp")

@@ -240,6 +240,18 @@ remove(CASILLASnames, y2010, y2013, y2016, y2019, y2021)
 # ====================================================================================================
 # ====================================================================================================
 
+# There are 
+
+CASILLAS <- lapply(CASILLAS, function(x){
+  x[!grepl("S", x[,4]),]
+})
+
+
+
+
+# ====================================================================================================
+# ====================================================================================================
+
 
 # The first elections results were published by polling station therefore subsequent elections were
 # downloaded in the same way. However we are  interested in analyzing polling place = Seccion so
@@ -418,9 +430,8 @@ remove(i)
 # ====================================================================================================
 # ====================================================================================================
 
-basic_stats <- function(datos, columnas) {
+basic_stats <- function(base, columnas) {
   #
-  base <- datos
   by = c(as.character(groups(base)))
   
   base <- base %>%
@@ -441,7 +452,7 @@ basic_stats <- function(datos, columnas) {
   estadisticos <- base %>% 
     group_by_at("variable") %>%   
     summarise(Media = mean(value),
-              Medana = median(value),
+              Mediana = median(value),
               Moda = Modes(value),
               Total = sum(value)
     )
@@ -457,26 +468,59 @@ basic_stats <- function(datos, columnas) {
 # Now that data is prepared for analysis, we analyze. We are interested in District 10 a
 
 # Frst thing is to find if the number of secciones has change over time
-
-Distrito_10 <- subset(HISTORICOS$Diputados, HISTORICOS$Diputados$Distrito_2021 == "10")
-num_secciones <- colSums(!is.na(Distrito_10))
+Distrito <- subset(HISTORICOS$Diputados, HISTORICOS$Diputados$Distrito_2021 == "10")
+num_secciones <- colSums(!is.na(Distrito))
 
 # Now we'll see how voter registration has change
-listado <- select(Distrito_10, matches("Lista_Nominal"))
-listado_descriptivo <- estadisticos(base = listado, "Lista_Nominal")
+listado <- select(Distrito, matches("Lista_Nominal"))
+listado_descriptivo <- basic_stats(base = listado, "Lista_Nominal")
 
-# A
+# Calculating basic statistics
 HISTORICOS_COMPLETE <- lapply(HISTORICOS, na.omit)
-Distrito_10 <- subset(HISTORICOS_COMPLETE$Diputados, 
-                      HISTORICOS_COMPLETE$Diputados$Distrito_2021 == "10")
+Distrito <- subset(HISTORICOS_COMPLETE$Diputados,
+                   HISTORICOS_COMPLETE$Diputados$Distrito_2021 == "10")
 
-estadisticos_grles <- basic_stats(datos = Distrito_10,
-                                  columnas = "Lista_Nominal")
+descriptivos <- basic_stats(base = Distrito,
+                            columnas = "Lista_Nominal")
+descriptivos
 
+# In 2019 district boundaries changed, we check the composition in terms of secciones
+comp_secc <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("ifany"))
+comp_secc
+prop.table(comp_secc)*100
+
+# And also check in terms of electoral register
+compo_list <- Distrito %>%
+  group_by(Distrito$Distrito_2016) %>%
+  summarise(Total = sum(Lista_Nominal_2016))
+
+compo_list[,2] <- (compo_list[,2] / as.numeric(descriptivos[1,5]))*100
+compo_list
 
 # ====================================================================================================
 # ====================================================================================================
 
+
+# Now that we know "whos" the district, we are interested in "how" it behaves
+
+# First step is the participation rate, basic stats and density plot
+parti_descriptivo <- basic_stats(base = Distrito, "Participacion")
+parti_descriptivo
+
+parti_graph <- Distrito %>%
+  group_by_at(c(as.character(groups(Distrito)))) %>%
+  ungroup() %>%
+  select(matches("Participacion"))
+
+parti_graph = melt(parti_graph)
+
+ggplot(data=parti_graph, aes(x=value, group=variable, fill=variable)) +
+  geom_density(kernel = "gaussian", adjust=1.5, alpha=0.4) +
+  labs(x = "% de participacion", y = "Probabilidad",
+       title ="Participación 2010-21") + theme(plot.title = element_text(size=22)) +
+  facet_wrap(~variable) +
+  theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
+  scale_x_continuous(breaks = round(seq(min(parti_graph$value), max(parti_graph$value), by = 10),1))
 
 # In www.plataformadetransparencia.org.mx we found a KML map from the 2013 State Election,
 # we will convert it to SHP and add our working columns to plot maps as we prefer 

@@ -465,35 +465,52 @@ basic_stats <- function(base, columnas) {
   return(descriptivos)
 }
 
+
 # ====================================================================================================
 # ====================================================================================================
 
 
-# Now data is ready for analysis, We are interested in District 10 and so we subset
-# The first thing is to find the number of secciones and whether it has change over time
+# In www.plataformadetransparencia.org.mx we located the KML map for the 2013 State Election,
+# we converted it to SHP and we'll use it to georeference data
+
+# Mapa_Casillas <- st_read("Casillas.shp")
+# Mapa_Secciones <- st_read("Secciones.shp")
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# We are interested in analyzing District 10, the first question to answer is "Who's" the District
+# How many Sections it has, whats the electoral population, has this change over time?
+# We are also interested in the demographics, Male, Females, Ages in other basic stats
+
+# Subset to Distrit 10 and see if Sections numbers has change over time
 Distrito <- subset(HISTORICOS$Diputados, HISTORICOS$Diputados$Distrito_2021 == "10")
 num_secciones <- colSums(!is.na(Distrito))
 num_secciones[grepl("^Mun",names(num_secciones))]
 
 # See how voter registration has change over time
-listado <- select(Distrito, matches("Lista_Nominal"))
-listado_descriptivo <- basic_stats(base = listado, "Lista_Nominal")
-listado_descriptivo
+Listado <- select(Distrito, matches("Lista_Nominal"))
+Listado_descriptivo <- as.data.frame(basic_stats(base = Listado, "Lista_Nominal"))
+Listado_descriptivo
 
 # In 2019 district delimitation changed, we check composition based on previous districts 
-comp_seccion <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("ifany"))
-comp_seccion #Distrito 10 2021 vs Distritos 2016 (pre-re-distritacion)
-prop.table(comp_seccion)*100
+Comp_seccion <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("ifany"))
+Comp_seccion <- as.data.frame(prop.table(Comp_seccion)*100) #Distrito 10 2021vs2016 (pre-re-distritacion)
+Comp_seccion
 
 # And composition in terms of electoral register population and percentage
-composicion_listado <- Distrito %>%
+Composicion_listado <- Distrito %>%
   group_by(Distrito$Distrito_2016) %>%
   summarise(Total = sum(Lista_Nominal_2016))
 
-composicion_listado[,3] <- (composicion_listado[,2] / as.numeric(listado_descriptivo[1,5]))*100
-composicion_listado
+Composicion_listado[,3] <- (Composicion_listado[,2] / as.numeric(Listado_descriptivo[1,5]))*100
+Composicion_listado
 
 
+# ====================================================================================================
+# ====================================================================================================
 
 
 # Now we'll see the District's demographics
@@ -506,14 +523,12 @@ INEGI$SECCION <- gsub("\\s", "0", format(INEGI$SECCION ,  justify = c("right"), 
 # Change to Municipilaties name from ID and rename to lowercase SECCION
 unique(unlist(INEGI$MUNICIPIO))
 INEGI <- municipalities_name(INEGI)
-colnames(INEGI)[5] <- "Seccion"
 
-# Create Secciones Demographic data frame
-INEGI_Distrito <- data.frame(SECCION <- INEGI$Seccion,
+# Create District and Seccions demographic data frame
+INEGI_Distrito <- data.frame(SECCION <- INEGI$SECCION,
                              
                              Hombres <- INEGI$POBMAS,
                              Mujeres <- INEGI$POBFEM,
-
                              
                              P0a4 <- INEGI$POBTOT - INEGI$P_5YMAS,
                              P18a24 <- INEGI$P_18A24,
@@ -522,32 +537,22 @@ INEGI_Distrito <- data.frame(SECCION <- INEGI$Seccion,
                              P5a17 <- INEGI$POBTOT - P0a4 - P18a24 - P25a64 - P65MAS,
                              
                              Salud <- INEGI$PDER_SS,
-                             Educacion <- INEGI$GRAPROES
-                             )
+                             Educacion <- INEGI$GRAPROES)
 
-INEGI_Secciones <- data.frame(SECCION <- INEGI$Seccion,
-                             Hombres <- (Hombres/INEGI$POBTOT) * 100,
-                             Mujeres <- (Mujeres/INEGI$POBTOT) * 100,
-                             
-                             P0a4 <- (P0a4/INEGI$POBTOT) * 100,
-                             P18a24 <- (P18a24/INEGI$POBTOT) * 100,
-                             P25a64 <- (P25a64/INEGI$POBTOT) * 100,
-                             P65MAS <- (P65MAS/INEGI$POBTOT) * 100,
-                             P5a17 <- (P5a17/INEGI$POBTOT) * 100,
+INEGI_Secciones <- data.frame(SECCION <- INEGI$SECCION,
+                               (INEGI_Distrito[,2:9] / INEGI$POBTOT)*100,
+                               Educacion <- INEGI$GRAPROES)
 
-                             Salud <- (Salud/INEGI$POBTOT) * 100,
-                             Educacion <- INEGI$GRAPROES                           
-                             )
-
-INEGI_names <- c("SECCION",
-                 "Hombres", "Mujeres",
-                 "P0a4", "P18a24","P25a64", "P65MAS", "P5a17",
+# Rename District and Secciones columns
+INEGI_names <- c("SECCION", "Hombres", "Mujeres", "P0a4", "P18a24","P25a64", "P65MAS", "P5a17",
                  "Salud", "Educacion")
 colnames(INEGI_Distrito) <- INEGI_names
 colnames(INEGI_Secciones) <- INEGI_names
 
+# Round percentages
 INEGI_Secciones[,2:10] <- round(INEGI_Secciones[,2:10], 2)
 
+# Rearrange District and Secciones columns, P5a17 
 INEGI_Distrito <- INEGI_Distrito[, c("SECCION",
                                      "Hombres", "Mujeres",
                                      "P0a4", "P5a17", "P18a24","P25a64", "P65MAS",
@@ -560,21 +565,74 @@ INEGI_Secciones <- INEGI_Secciones[, c("SECCION",
 # Subset to District of interest
 INEGI_Distrito <- INEGI_Distrito[INEGI_Distrito$SECCION %in% unique(Distrito$Seccion), ]
 
-# Calculate district total population to later calculate percentages
+# Calculate District population to calculate percentages, Educacion is calculated  as an average
 Distrito_Poblacion <- sum(INEGI_Distrito$Hombres) + sum(INEGI_Distrito$Mujeres)
 Distrito_Educacion <- mean(INEGI_Distrito$Educacion)
 
-# Discard Seccion for District data frame
+# For District we are interested in overall stats, so we discard SECCION column from data frame
 INEGI_Distrito <- INEGI_Distrito[,2:10]
+
+# Sum all columns to obtain District total and calculate percentages
 INEGI_Distrito <- summarise_all(INEGI_Distrito[,1:8], sum)
 INEGI_Distrito <- (INEGI_Distrito / Distrito_Poblacion) * 100
+
+# Educacion average is added to data frame apart
 INEGI_Distrito[,9] <- Distrito_Educacion
 names(INEGI_Distrito)[names(INEGI_Distrito) == "V9"] <- "Educacion"
-INEGI_Distrito <- round(INEGI_Distrito, 2)
 
-# Subset Secciones to District of interest
+# Round percentages
+INEGI_Distrito <- round(INEGI_Distrito, 2)
+INEGI_Distrito
+
+# We are interest in every Seccion that belong to the District, so we only subset
 INEGI_Secciones <- INEGI_Secciones[INEGI_Secciones$SECCION %in% unique(Distrito$Seccion), ]
 
 remove(Hombres, Mujeres, Salud, Educacion, 
        P0a4, P18a24,P25a64, P65MAS, P5a17,
        Distrito_Educacion, Distrito_Poblacion, INEGI_names, SECCION)
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+# Set back main folder
+setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
+
+# See Participation stats over time
+Parti_descriptivo <- basic_stats(base = Distrito, "Participacion")
+Parti_descriptivo[,1:4]
+
+# Prepare data to graph Participation in the last six elections
+Participacion <- Distrito %>%
+  group_by_at(c(as.character(groups(Distrito)))) %>%
+  ungroup() %>%
+  select(matches("Participacion"))
+Parti_every = melt(Participacion, id.vars = NULL)
+
+# Graph last six elections
+ggplot(data=Parti_every, aes(x=value, group=variable, fill=variable)) +
+  geom_density(kernel = "gaussian", adjust=1.5, alpha=0.4) +
+  labs(x = "% de participacion", y = "Probabilidad",
+       title ="Participación 2010-21") + theme(plot.title = element_text(size=22)) +
+  facet_wrap(~variable) +
+  theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
+  scale_x_continuous(breaks = round(seq(min(Parti_every$value), max(Parti_every$value), by = 10),1))
+
+# Create Participation table adding Municipality, District and Section
+Participacion <- Distrito %>%
+  select(matches("Seccion") | matches("Participacion"))
+
+# Calculate historic participation rate averaging each section
+Participacion$Media <- round(as.numeric(rowMeans(Participacion[,4:8])),2)
+
+# Plot overall participation rate distribution
+ggplot(data=Participacion, aes(x=Media, fill="red")) +
+  geom_density(kernel = "gaussian", adjust=1.5, alpha=0.4) +
+  labs(x = "% de participacion", y = "Probabilidad",
+       title ="Participacion 2010-21") + theme(plot.title = element_text(size=22)) +
+  theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
+  scale_x_continuous(breaks = round(seq(min(Participacion$Media), max(Participacion$Media), by = 5),1))
+
+
+# ====================================================================================================
+# ====================================================================================================

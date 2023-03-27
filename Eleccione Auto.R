@@ -331,12 +331,17 @@ HISTORICOS[["Diputados"]] <- historic(base = SECCIONES,
 HISTORICOS[["Gubernatura"]] <- historic(base = SECCIONES,
                                         level = "Gubernatura")
 
+
 # ====================================================================================================
 # ====================================================================================================
 
 
 # Define winners() function to create a historic table of winner parties and votes by Seccion
+
 winners <- function(base, level) {
+  
+  #base <- SECCIONES
+  
   # Temporarily helper table Secciones_year
   Secciones_year <- base
   df_list <- list()
@@ -346,8 +351,8 @@ winners <- function(base, level) {
     # Substract year from each data frame
     election_year <- substr(i, nchar(i)-4, nchar(i))
     
-    # Subset data frame to obtain geo and electoral information
-    geo <- Secciones_year[[i]][,1:3]
+    # Subset data frame to obtain SECCION and election results
+    geo <- Secciones_year[[i]][,3]
     votes <- Secciones_year[[i]][,4:(ncol(Secciones_year[[i]])-6)] 
     
     # Select winner party and number of votes (max)
@@ -357,7 +362,7 @@ winners <- function(base, level) {
     df_list[[i]] <- data.frame(geo, winner_party, party_votes)
     # colnames(df_list[[i]]) 
     df_list[[i]] <- df_list[[i]] %>% 
-      `colnames<-`(c("Municipio", "Distrito", "Seccion", "Ganador", "Votos")) %>%
+      `colnames<-`(c("Seccion", "Ganador", "Votos")) %>%
       rename_with(~paste0(., election_year), -c("Seccion"))
   }
   
@@ -388,11 +393,11 @@ HISTORICOS_GANADORES[["Gubernatura"]] <- winners(base = SECCIONES,
 # Reset data frame row numbers to go from 1 to n-row
 HISTORICOS_GANADORES_COMPLETE <- lapply(HISTORICOS_GANADORES, na.omit)
 for (i in seq_along(HISTORICOS_GANADORES_COMPLETE)){
-  i <- "Ayuntamiento"
+  #i <- "Ayuntamiento"
   rownames(HISTORICOS_GANADORES_COMPLETE[[i]]) <- NULL
+  
+  remove(i)
 }
-
-remove(i)
 
 
 # ====================================================================================================
@@ -432,6 +437,7 @@ GANADORES_tendencia <- (lapply(HISTORICOS_GANADORES_COMPLETE, reparto))
 
 # ====================================================================================================
 # ====================================================================================================
+
 
 # We create basic_stats() function before our analysis since will be using it quite frequently
 basic_stats <- function(base, columnas) {
@@ -473,13 +479,18 @@ basic_stats <- function(base, columnas) {
 # In www.plataformadetransparencia.org.mx we located the KML map for the 2013 State Election,
 # we converted it to SHP and we'll use it to georeference data
 
-# Mapa_Casillas <- st_read("Casillas.shp")
-# Mapa_Secciones <- st_read("Secciones.shp")
+setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC/Mapas/Secciones")
+Mapa_Secciones <- st_read("Secciones.shp")
+
+colnames(Mapa_Secciones)[1] <- "Seccion"
 
 
 # ====================================================================================================
 # ====================================================================================================
 
+
+# 
+setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 
 # We are interested in analyzing District 10, the first question to answer is "Who's" the District
 # How many Sections it has, whats the electoral population, has this change over time?
@@ -595,6 +606,7 @@ remove(Hombres, Mujeres, Salud, Educacion,
 # ====================================================================================================
 # ====================================================================================================
 
+
 # Set back main folder
 setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 
@@ -633,6 +645,44 @@ ggplot(data=Participacion, aes(x=Media, fill="red")) +
   theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
   scale_x_continuous(breaks = round(seq(min(Participacion$Media), max(Participacion$Media), by = 5),1))
 
+remove(Parti_every)
+
 
 # ====================================================================================================
 # ====================================================================================================
+
+
+# 
+Participacion[,10] <- cut(x = as.numeric(unlist(Participacion[,9])),
+                          # Remember we can set 3 to use more homogeneous groups
+                          breaks = quantile(Participacion$Media, 
+                                            probs = c(seq(from = 0, to = 1, by = 1/3))),
+                          include.lowest = TRUE,
+                          labels = c("Poca", "Media", "Alta"))
+colnames(Participacion)[10] <- "Tendencia"
+
+# Create Participation map
+Mapa_parti_promedio <- merge(x = Mapa_Secciones, y = Participacion[,c(3,10)],
+                             by = "Seccion", all.x = TRUE)
+Mapa_parti_promedio <- Mapa_parti_promedio[!is.na(Mapa_parti_promedio$Tendencia),]
+
+# Plot map
+for (Categoria in unique(Mapa_parti_promedio$Tendencia)) {
+  mapa <- subset(Mapa_parti_promedio, Mapa_parti_promedio$Tendencia == Categoria)
+
+  plotKML(obj = mapa,
+          file.name = paste(Categoria, ".kml", sep=""),
+          folder.name = Categoria,
+          plot.labpt = FALSE)
+  remove(mapa)
+}
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+#
+Distrito_test <- lapply(SECCIONES,function(x) {
+  y <- x[x$Seccion %in% Distrito$Seccion,]
+  return(y)
+})

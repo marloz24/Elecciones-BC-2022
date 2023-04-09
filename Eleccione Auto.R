@@ -259,22 +259,22 @@ CASILLAS <- lapply(CASILLAS, function(x){
 # were downloaded in the same way. However we are  interested in analyzing polling place = Seccion,
 # we create a function to aggregate polling station results into Seccions results
 
-groupby_summariseif <- function(x) {
+Casillas_Secciones <- function(x) {
   x %>%
     group_by(Municipio, Distrito, Seccion) %>% 
     summarise_if(is.double, sum)
 }
-SECCIONES <- lapply(CASILLAS, groupby_summariseif)
+SECCIONES <- lapply(CASILLAS, Casillas_Secciones)
 
 # Aggregated results for Participacion and Abstencion aren't the actual values, we recalculate them
-part_abst <- function(x) {
+parti_abst <- function(x) {
   x %>%
     mutate(Participacion = (Total_Votos / Lista_Nominal) * 100) %>%
     mutate(Abstencion = (100 - Participacion))
 }
-SECCIONES <- lapply(SECCIONES, part_abst)
+SECCIONES <- lapply(SECCIONES, parti_abst)
 
-remove(groupby_summariseif, part_abst)
+remove(Casillas_Secciones, parti_abst)
 
 
 # ====================================================================================================
@@ -284,13 +284,13 @@ remove(groupby_summariseif, part_abst)
 # Since we are interested in alliances and leading parties, we create a list of unique party/candidates,
 # select unwanted party/candidates and set them NULL
 
-all_names <- unique(unlist(sapply(SECCIONES, colnames)))
-all_names
+parties_candidates <- unique(unlist(sapply(SECCIONES, colnames)))
+parties_candidates
 SECCIONES <- lapply(SECCIONES, function(x) {
   x[c("PAN_PRI_PRD", "PAN_PRI", "PAN_PRD", "PRI_PRD", "PT_PVEM_MORENA", "PT_PVEM", 
       "PT_MORENA", "PVEM_MORENA", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10",
       "C11")] <- NULL; x })
-remove(all_names)
+remove(parties_candidates)
 
 
 # ====================================================================================================
@@ -336,12 +336,9 @@ HISTORICOS[["Gubernatura"]] <- historic(base = SECCIONES,
 # ====================================================================================================
 
 
-# Define winners() function to create a historic table of winner parties and votes by Seccion
+# Define winners_votes() function to create a historic table of winner parties and votes by Seccion
 
-winners <- function(base, level) {
-  
-  #base <- SECCIONES
-  
+winners_votes <- function(base, level) {
   # Temporarily helper table Secciones_year
   Secciones_year <- base
   df_list <- list()
@@ -378,11 +375,11 @@ HISTORICOS_GANADORES <- list(Ayuntamiento = list(),
                              Diputados = list(),
                              Gubernatura = list())
 
-HISTORICOS_GANADORES[["Ayuntamiento"]] <- winners(base = SECCIONES,
+HISTORICOS_GANADORES[["Ayuntamiento"]] <- winners_votes(base = SECCIONES,
                                                   level = "Ayuntamiento")
-HISTORICOS_GANADORES[["Diputados"]] <- winners(base = SECCIONES,
+HISTORICOS_GANADORES[["Diputados"]] <- winners_votes(base = SECCIONES,
                                                level = "Diputados")
-HISTORICOS_GANADORES[["Gubernatura"]] <- winners(base = SECCIONES,
+HISTORICOS_GANADORES[["Gubernatura"]] <- winners_votes(base = SECCIONES,
                                                  level = "Gubernatura")
 
 
@@ -404,13 +401,15 @@ for (i in seq_along(HISTORICOS_GANADORES_COMPLETE)){
 # ====================================================================================================
 
 
-# Through a small classification algorithm, reparto() classifies secciones based on election results
-reparto <- function(base) {
-  # Take winners historical table
+# Through a small classification algorithm, tendencia() classifies secciones based on election results
+tendencia <- function(base) {
+  # Take winners_votes historical table
   df <- base
   df <- df[grepl("Ganador", names(df))] 
+  
   # Obtain number of occurrence (victories) each party has
   occurrence <- apply(df,MARGIN=1,table)
+  
   # Transform table list into a data frame and delete index column
   occurrence <- dcast(melt(occurrence), L1~Var1, fill=0)
   occurrence$L1 <- NULL
@@ -432,7 +431,7 @@ reparto <- function(base) {
   return(df)
 }
 
-GANADORES_tendencia <- (lapply(HISTORICOS_GANADORES_COMPLETE, reparto))
+Tendencia_Voto <- (lapply(HISTORICOS_GANADORES_COMPLETE, tendencia))
 
 
 # ====================================================================================================
@@ -481,7 +480,6 @@ basic_stats <- function(base, columnas) {
 
 setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC/Mapas/Secciones")
 Mapa_Secciones <- st_read("Secciones.shp")
-
 colnames(Mapa_Secciones)[1] <- "Seccion"
 
 
@@ -498,8 +496,8 @@ setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 
 # Subset to Distrit 10 and see if Sections numbers has change over time
 Distrito <- subset(HISTORICOS$Diputados, HISTORICOS$Diputados$Distrito_2021 == "10")
-num_secciones <- colSums(!is.na(Distrito))
-num_secciones[grepl("^Mun",names(num_secciones))]
+Num_secciones <- colSums(!is.na(Distrito))
+Num_secciones <- as.data.frame(Num_secciones[grepl("^Mun",names(Num_secciones))])
 
 # See how voter registration has change over time
 Listado <- select(Distrito, matches("Lista_Nominal"))
@@ -507,9 +505,9 @@ Listado_descriptivo <- as.data.frame(basic_stats(base = Listado, "Lista_Nominal"
 Listado_descriptivo
 
 # In 2019 district delimitation changed, we check composition based on previous districts 
-Comp_seccion <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("ifany"))
-Comp_seccion <- as.data.frame(prop.table(Comp_seccion)*100) #Distrito 10 2021vs2016 (pre-re-distritacion)
-Comp_seccion
+Composicion_seccion <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("ifany"))
+Composicion_seccion <- as.data.frame(prop.table(Composicion_seccion)*100) #Distrito 10 2021vs2016 (pre-re-distritacion)
+Composicion_seccion
 
 # And composition in terms of electoral register population and percentage
 Composicion_listado <- Distrito %>%
@@ -577,18 +575,18 @@ INEGI_Secciones <- INEGI_Secciones[, c("SECCION",
 INEGI_Distrito <- INEGI_Distrito[INEGI_Distrito$SECCION %in% unique(Distrito$Seccion), ]
 
 # Calculate District population to calculate percentages, Educacion is calculated  as an average
-Distrito_Poblacion <- sum(INEGI_Distrito$Hombres) + sum(INEGI_Distrito$Mujeres)
-Distrito_Educacion <- mean(INEGI_Distrito$Educacion)
+INEGI_Distrito_Poblacion <- sum(INEGI_Distrito$Hombres) + sum(INEGI_Distrito$Mujeres)
+INEGI_Distrito_Educacion <- mean(INEGI_Distrito$Educacion)
 
 # For District we are interested in overall stats, so we discard SECCION column from data frame
 INEGI_Distrito <- INEGI_Distrito[,2:10]
 
 # Sum all columns to obtain District total and calculate percentages
 INEGI_Distrito <- summarise_all(INEGI_Distrito[,1:8], sum)
-INEGI_Distrito <- (INEGI_Distrito / Distrito_Poblacion) * 100
+INEGI_Distrito <- (INEGI_Distrito / INEGI_Distrito_Poblacion) * 100
 
 # Educacion average is added to data frame apart
-INEGI_Distrito[,9] <- Distrito_Educacion
+INEGI_Distrito[,9] <- INEGI_Distrito_Educacion
 names(INEGI_Distrito)[names(INEGI_Distrito) == "V9"] <- "Educacion"
 
 # Round percentages
@@ -600,7 +598,7 @@ INEGI_Secciones <- INEGI_Secciones[INEGI_Secciones$SECCION %in% unique(Distrito$
 
 remove(Hombres, Mujeres, Salud, Educacion, 
        P0a4, P18a24,P25a64, P65MAS, P5a17,
-       Distrito_Educacion, Distrito_Poblacion, INEGI_names, SECCION)
+       INEGI_Distrito_Educacion, INEGI_Distrito_Poblacion, INEGI_names, SECCION)
 
 
 # ====================================================================================================
@@ -611,8 +609,8 @@ remove(Hombres, Mujeres, Salud, Educacion,
 setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 
 # See Participation stats over time
-Parti_descriptivo <- basic_stats(base = Distrito, "Participacion")
-Parti_descriptivo[,1:4]
+Participacion_descriptivo <- basic_stats(base = Distrito, "Participacion")
+Participacion_descriptivo[,1:4]
 
 # Prepare data to graph Participation in the last six elections
 Participacion <- Distrito %>%
@@ -662,27 +660,67 @@ Participacion[,10] <- cut(x = as.numeric(unlist(Participacion[,9])),
 colnames(Participacion)[10] <- "Tendencia"
 
 # Create Participation map
-Mapa_parti_promedio <- merge(x = Mapa_Secciones, y = Participacion[,c(3,10)],
+Mapa_participacion_promedio <- merge(x = Mapa_Secciones, y = Participacion[,c(3,10)],
                              by = "Seccion", all.x = TRUE)
-Mapa_parti_promedio <- Mapa_parti_promedio[!is.na(Mapa_parti_promedio$Tendencia),]
+Mapa_participacion_promedio <- Mapa_participacion_promedio[!is.na(Mapa_participacion_promedio$Tendencia),]
 
 # Plot map
-for (Categoria in unique(Mapa_parti_promedio$Tendencia)) {
-  mapa <- subset(Mapa_parti_promedio, Mapa_parti_promedio$Tendencia == Categoria)
-
-  plotKML(obj = mapa,
-          file.name = paste(Categoria, ".kml", sep=""),
-          folder.name = Categoria,
-          plot.labpt = FALSE)
-  remove(mapa)
-}
+# for (Categoria in unique(Mapa_participacion_promedio$Tendencia)) {
+#   mapa <- subset(Mapa_participacion_promedio, Mapa_participacion_promedio$Tendencia == Categoria)
+# 
+#   plotKML(obj = mapa,
+#           file.name = paste(Categoria, ".kml", sep=""),
+#           folder.name = Categoria,
+#           plot.labpt = FALSE)
+#   remove(mapa)
+# }
 
 
 # ====================================================================================================
 # ====================================================================================================
 
 #
-Distrito_test <- lapply(SECCIONES,function(x) {
-  y <- x[x$Seccion %in% Distrito$Seccion,]
-  return(y)
+Distrito_resultados <- lapply(SECCIONES,function(x) {
+  votos <- x[x$Seccion %in% Distrito$Seccion,][,4:(ncol(x[x$Seccion %in% Distrito$Seccion,])-6)]
+  lista_nominal <- x[x$Seccion %in% Distrito$Seccion,][,"Lista_Nominal"]
+  
+  votos <- summarise_all(votos, sum)
+  lista_nominal <- summarise_all(lista_nominal, sum)
+  
+  votos[,"Lista_Nominal"] <- lista_nominal
+  votos[2,] <-  (votos/ t(votos[,"Lista_Nominal"])) * 100
+  
+  votos[1,] <- round(votos[1,],0)
+  votos[2,] <- round(votos[2,],2)
+  
+  return(votos)
 })
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+Ayuntamiento <- HISTORICOS_GANADORES_COMPLETE[[("Ayuntamiento")]]
+Diputados <- HISTORICOS_GANADORES_COMPLETE[[("Diputados")]]
+
+Ayuntamiento <- Ayuntamiento[Ayuntamiento$Seccion %in% (Distrito$Seccion), ]
+Diputados <- Diputados[Diputados$Seccion %in% (Distrito$Seccion), ]
+
+Secciones <- Ayuntamiento$Seccion
+
+Ayuntamiento <- Ayuntamiento[grepl("Ganador", names(Ayuntamiento))]
+Diputados <- Diputados[grepl("Ganador", names(Diputados))]
+
+Parejo_Cruzado <- as.data.frame(Ayuntamiento == Diputados)
+
+Parejo_Cruzado$Count <- rowSums(Parejo_Cruzado == TRUE)
+
+Parejo_Cruzado <- Parejo_Cruzado %>% mutate(Parejo_Cruzado = case_when(Count >= 3 ~ "Parejo",
+                                                                       Count <= 2 ~ "Cruzado",
+                                                                       TRUE ~ as.character(Count)))
+
+Parejo_Cruzado <- data.frame(Secciones, Parejo_Cruzado)
+Parejo_Cruzado_tabla <- as.data.frame(table(Parejo_Cruzado$Parejo_Cruzado))
+
+remove(Ayuntamiento, Diputados, Secciones)

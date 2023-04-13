@@ -95,13 +95,13 @@ colnames(CASILLAS[["Ayuntamiento_2013"]])
 colnames(CASILLAS[["Diputados_2013"]])
 colnames(CASILLAS[["Gubernatura_2013"]])
 names(CASILLAS[["Ayuntamiento_2013"]]) <- c("Municipio", "Distrito","Seccion","Tipo",
-                                            "PAN","PRI","MC","NO_REGISTRADOS","Voto_Nulo"
+                                            "PAN","PRI","MC","No_Registrados","Voto_Nulo"
                                             ,"Total_Votos","Lista_Nominal","Participacion","Abstencion")
 names(CASILLAS[["Diputados_2013"]]) <- c("Municipio", "Distrito","Seccion","Tipo",
-                                         "PAN","PRI","MC","NO_REGISTRADOS","Voto_Nulo"
+                                         "PAN","PRI","MC","No_Registrados","Voto_Nulo"
                                          ,"Total_Votos","Lista_Nominal","Participacion","Abstencion")
 names(CASILLAS[["Gubernatura_2013"]]) <- c("Municipio", "Distrito","Seccion","Tipo",
-                                           "PAN","PRI","MC","NO_REGISTRADOS","Voto_Nulo"
+                                           "PAN","PRI","MC","No_Registrados","Voto_Nulo"
                                            ,"Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
 colnames(CASILLAS[["Ayuntamiento_2016"]])
@@ -109,9 +109,9 @@ colnames(CASILLAS[["Diputados_2016"]])
 names(CASILLAS[["Ayuntamiento_2016"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","Pre_PRI","PRD","PT",
                                             "PVEM","PBC","PANAL","PES","MC","Morena","PPC","MUNICIPALISTA",
                                             "HUMANISTA","C1","C2","C3","C4","C5","C6","C7","C8","C9" ,"C10",
-                                            "C11","CESAR_IVAN","GASTON_LUKEN","CAROLINA_AUBANEL",
-                                            "JESUS_ALFREDO","OMAR_GARCIA","JUAN_CARLOS","FRANCISCO_DEL_CASTILLO",
-                                            "JOSE_LUIS_MAR", "NO_REGISTRADOS","Voto_Nulo",
+                                            "C11","CESAR_IVAN","Gaston_Luken","Carolina_Aubanel",
+                                            "Jesus_Alfredo","OMAR_GARCIA","Juan_Carlos","Francisco_Del_Castillo",
+                                            "JOSE_LUIS_MAR", "No_Registrados","Voto_Nulo",
                                             "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
 names(CASILLAS[["Diputados_2016"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","Pre_PRI","PRD","PT",
@@ -119,7 +119,7 @@ names(CASILLAS[["Diputados_2016"]]) <- c("Municipio","Distrito","Seccion","Tipo"
                                          "HUMANISTA","C1","C2","C3","C4","C5","C6","C7","C8","C9" ,"C10",
                                          "C11","DAYLIN_GARCIA","CORDELIA_CASAS","BLANCA_ESPERANZA",
                                          "RUBEN_FERNANDEZ","ERWIN_JORGE","ADOLFO_CALETTE","LUIS_HILARIO",
-                                         "NO_REGISTRADOS","Voto_Nulo",
+                                         "No_Registrados","Voto_Nulo",
                                          "Total_Votos","Lista_Nominal","Participacion","Abstencion")
 
 colnames(CASILLAS[["Ayuntamiento_2019"]])
@@ -152,19 +152,19 @@ names(CASILLAS[["Ayuntamiento_2021"]]) <- c("Municipio","Distrito","Seccion","Ti
                                             "Rogelio_Castro","Marco_Antonio","Cesar_Ivan","Celso_Arturo",
                                             "Luis_Fernando","PAN_PRI_PRD","PAN_PRI","PAN_PRD","PRI_PRD",
                                             "PT_PVEM_MORENA","PT_PVEM","PT_MORENA","PVEM_MORENA",
-                                            "NO_REGISTRADOS","Voto_Nulo","Total_Votos","Lista_Nominal",
+                                            "No_Registrados","Voto_Nulo","Total_Votos","Lista_Nominal",
                                             "Participacion","Abstencion")
 
 names(CASILLAS[["Diputados_2021"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD","PT",
                                          "PVEM","PBC","MC","Pre_MORENA","PES","RSP","FXM","Jose_Antonio",
                                          "Ramiro_Orea","PAN_PRI_PRD","PAN_PRI","PAN_PRD","PRI_PRD",
                                          "PT_PVEM_MORENA","PT_PVEM","PT_MORENA","PVEM_MORENA",
-                                         "NO_REGISTRADOS","Voto_Nulo","Total_Votos","Lista_Nominal",
+                                         "No_Registrados","Voto_Nulo","Total_Votos","Lista_Nominal",
                                          "Participacion","Abstencion" )
 names(CASILLAS[["Gubernatura_2021"]]) <- c("Municipio","Distrito","Seccion","Tipo","PAN","PRI","PRD","PT",
                                            "PVEM","PBC","MC","Pre_MORENA","PES","RSP","FXM","PAN_PRI_PRD","PAN_PRI",
                                            "PAN_PRD","PRI_PRD","PT_PVEM_MORENA","PT_PVEM","PT_MORENA",
-                                           "PVEM_MORENA","NO_REGISTRADOS","Voto_Nulo","Total_Votos",
+                                           "PVEM_MORENA","No_Registrados","Voto_Nulo","Total_Votos",
                                            "Lista_Nominal","Participacion","Abstencion")
 
 
@@ -237,6 +237,11 @@ CASILLAS[y2021] <- lapply(CASILLAS[y2021], sum_party,
                           alliance = c("Pre_MORENA","PT","PVEM","PT_PVEM_MORENA", "PT_PVEM","PT_MORENA",
                                        "PVEM_MORENA"),
                           position = "Pre_MORENA")
+
+CASILLAS[y2021] <- lapply(CASILLAS[y2021], sum_party, 
+                          leading = "Va_por_Mexico",
+                          alliance = c("PAN","PRI","PRD","PAN_PRI_PRD", "PAN_PRI", "PAN_PRD", "PRI_PRD"),
+                          position = "Morena")
 
 remove(CASILLASnames, y2010, y2013, y2016, y2019, y2021)
 
@@ -340,6 +345,8 @@ HISTORICOS[["Gubernatura"]] <- historic(base = SECCIONES,
 
 winners_votes <- function(base, level) {
   # Temporarily helper table Secciones_year
+  level <- "Ayuntamiento"
+  
   Secciones_year <- base
   df_list <- list()
   
@@ -349,7 +356,7 @@ winners_votes <- function(base, level) {
     election_year <- substr(i, nchar(i)-4, nchar(i))
     
     # Subset data frame to obtain SECCION and election results
-    geo <- Secciones_year[[i]][,3]
+    geo <- Secciones_year[[i]][,1:3]
     votes <- Secciones_year[[i]][,4:(ncol(Secciones_year[[i]])-6)] 
     
     # Select winner party and number of votes (max)
@@ -357,9 +364,9 @@ winners_votes <- function(base, level) {
     party_votes <- apply(votes, 1, max)
     
     df_list[[i]] <- data.frame(geo, winner_party, party_votes)
-    # colnames(df_list[[i]]) 
+     
     df_list[[i]] <- df_list[[i]] %>% 
-      `colnames<-`(c("Seccion", "Ganador", "Votos")) %>%
+      `colnames<-`(c("Municipio", "Distrito", "Seccion", "Ganador", "Votos")) %>%
       rename_with(~paste0(., election_year), -c("Seccion"))
   }
   
@@ -392,7 +399,6 @@ HISTORICOS_GANADORES_COMPLETE <- lapply(HISTORICOS_GANADORES, na.omit)
 for (i in seq_along(HISTORICOS_GANADORES_COMPLETE)){
   #i <- "Ayuntamiento"
   rownames(HISTORICOS_GANADORES_COMPLETE[[i]]) <- NULL
-  
   remove(i)
 }
 
@@ -406,13 +412,21 @@ tendencia <- function(base) {
   # Take winners_votes historical table
   df <- base
   df <- df[grepl("Ganador", names(df))] 
-  
+
   # Obtain number of occurrence (victories) each party has
-  occurrence <- apply(df,MARGIN=1,table)
+  occurrence <- apply(df, MARGIN=1, table)
   
   # Transform table list into a data frame and delete index column
   occurrence <- dcast(melt(occurrence), L1~Var1, fill=0)
   occurrence$L1 <- NULL
+  
+  #
+  occurrence <- occurrence %>% mutate(PAN = case_when(Va_por_Mexico >= 1 ~ (PAN + Va_por_Mexico),
+                                                      TRUE ~ 0),
+                                      PRI = case_when(Va_por_Mexico >= 1 ~ (PRI + Va_por_Mexico),
+                                                      TRUE ~ 0),
+                                      PRD = case_when(Va_por_Mexico >= 1 ~ (PRD + Va_por_Mexico),
+                                                      TRUE ~ 0)) 
   
   # Find party with most victories and number of victories
   party <- colnames(occurrence)[max.col(occurrence,ties.method = ("first"))]
@@ -483,8 +497,14 @@ Mapa_Secciones <- st_read("Secciones.shp")
 colnames(Mapa_Secciones)[1] <- "Seccion"
 
 
+
 # ====================================================================================================
 # ====================================================================================================
+# ====================================================================================================
+# ====================================================================================================
+# ====================================================================================================
+# ====================================================================================================
+
 
 
 # 
@@ -494,8 +514,25 @@ setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 # How many Sections it has, whats the electoral population, has this change over time?
 # We are also interested in the demographics, Male, Females, Ages in other basic stats
 
-# Subset to Distrit 10 and see if Sections numbers has change over time
+# Subset to Distrit 10 and see portion of the District respect to Municipality 
 Distrito <- subset(HISTORICOS$Diputados, HISTORICOS$Diputados$Distrito_2021 == "10")
+
+# Obtain total electoral population
+Tijuana <- HISTORICOS$Diputados[ HISTORICOS$Diputados$Municipio_2021 == "TIJUANA", ]
+table(HISTORICOS$Diputados$Municipio_2021 == "TIJUANA")
+
+Listado_Distrito <- sum(Distrito$Lista_Nominal_2021)
+Listado_Ciudad <- sum(Tijuana$Lista_Nominal_2021, na.rm = TRUE)
+
+Dis_Listado_Municipio <- (Listado_Distrito / Listado_Ciudad) * 100
+
+Secciones_Distrito <- sum(!is.na(Distrito$Lista_Nominal_2021))
+Secciones_Ciudad <- sum(!is.na(Tijuana$Lista_Nominal_2021), na.rm = TRUE)
+
+Dis_Secciones_Municipio <- (Secciones_Distrito / Secciones_Ciudad) * 100
+
+
+# See if Sections numbers has change over time
 Num_secciones <- colSums(!is.na(Distrito))
 Num_secciones <- as.data.frame(Num_secciones[grepl("^Mun",names(Num_secciones))])
 
@@ -610,7 +647,6 @@ setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 
 # See Participation stats over time
 Participacion_descriptivo <- basic_stats(base = Distrito, "Participacion")
-Participacion_descriptivo[,1:4]
 
 # Prepare data to graph Participation in the last six elections
 Participacion <- Distrito %>%
@@ -665,15 +701,15 @@ Mapa_participacion_promedio <- merge(x = Mapa_Secciones, y = Participacion[,c(3,
 Mapa_participacion_promedio <- Mapa_participacion_promedio[!is.na(Mapa_participacion_promedio$Tendencia),]
 
 # Plot map
-# for (Categoria in unique(Mapa_participacion_promedio$Tendencia)) {
-#   mapa <- subset(Mapa_participacion_promedio, Mapa_participacion_promedio$Tendencia == Categoria)
-# 
-#   plotKML(obj = mapa,
-#           file.name = paste(Categoria, ".kml", sep=""),
-#           folder.name = Categoria,
-#           plot.labpt = FALSE)
-#   remove(mapa)
-# }
+for (Categoria in unique(Mapa_participacion_promedio$Tendencia)) {
+  mapa <- subset(Mapa_participacion_promedio, Mapa_participacion_promedio$Tendencia == Categoria)
+  
+  plotKML(obj = mapa,
+          file.name = paste(Categoria, ".kml", sep=""),
+          folder.name = Categoria,
+          plot.labpt = FALSE)
+  remove(mapa)
+}
 
 
 # ====================================================================================================
@@ -724,3 +760,7 @@ Parejo_Cruzado <- data.frame(Secciones, Parejo_Cruzado)
 Parejo_Cruzado_tabla <- as.data.frame(table(Parejo_Cruzado$Parejo_Cruzado))
 
 remove(Ayuntamiento, Diputados, Secciones)
+
+# ====================================================================================================
+# ====================================================================================================
+

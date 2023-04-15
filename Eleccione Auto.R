@@ -452,6 +452,9 @@ Tendencia_Voto <- (lapply(HISTORICOS_GANADORES_COMPLETE, tendencia))
 # ====================================================================================================
 
 
+# base <- Listado
+# columnas <- "Lista_Nominal"
+
 # We create basic_stats() function before our analysis since will be using it quite frequently
 basic_stats <- function(base, columnas) {
   #
@@ -462,11 +465,12 @@ basic_stats <- function(base, columnas) {
     ungroup() %>%
     select(matches(columnas))
   
-  base = melt(base, id.vars = NULL)
+  base <- melt(base, id.vars = NULL)
   base$value <- round(base$value, 1)
   
   # Mode function does not exist, we define it
   Modes <- function(x) {
+    x <- na.omit(x)
     ux <- unique(x)
     ux[which.max(tabulate(match(x, ux)))]
   }
@@ -474,10 +478,10 @@ basic_stats <- function(base, columnas) {
   # Calculate basic statistics
   estadisticos <- base %>% 
     group_by_at("variable") %>%   
-    summarise(Media = mean(value),
-              Mediana = median(value),
+    summarise(Media = mean(value, na.rm = TRUE),
+              Mediana = median(value, na.rm = TRUE),
               Moda = Modes(value),
-              Total = sum(value)
+              Total = sum(value, na.rm = TRUE)
     )
   
   descriptivos <- Filter(function(x)!all(is.na(x)), estadisticos)
@@ -538,20 +542,21 @@ Num_secciones <- as.data.frame(Num_secciones[grepl("^Mun",names(Num_secciones))]
 
 # See how voter registration has change over time
 Listado <- select(Distrito, matches("Lista_Nominal"))
-Listado_descriptivo <- as.data.frame(basic_stats(base = Listado, "Lista_Nominal"))
+Listado_descriptivo <- as.data.frame( basic_stats(base = Listado, "Lista_Nominal") )
 Listado_descriptivo
 
 # In 2019 district delimitation changed, we check composition based on previous districts 
-Composicion_seccion <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("ifany"))
-Composicion_seccion <- as.data.frame(prop.table(Composicion_seccion)*100) #Distrito 10 2021vs2016 (pre-re-distritacion)
+Composicion_seccion <- table(Distrito$Distrito_2021, Distrito$Distrito_2016, useNA = c("no"))
+Composicion_seccion <- as.data.frame(prop.table(Composicion_seccion)*100)
+colnames(Composicion_seccion) <- c("Distrito", "Antiguo", "Proporcion")
 Composicion_seccion
 
 # And composition in terms of electoral register population and percentage
 Composicion_listado <- Distrito %>%
   group_by(Distrito$Distrito_2016) %>%
-  summarise(Total = sum(Lista_Nominal_2016))
+  summarise(Total = sum(Lista_Nominal_2021))
 
-Composicion_listado[,3] <- (Composicion_listado[,2] / as.numeric(Listado_descriptivo[1,5]))*100
+Composicion_listado[,3] <- (Composicion_listado[,2] / sum(Composicion_listado$Total, na.rm = TRUE) )*100
 Composicion_listado
 
 
@@ -653,7 +658,7 @@ Participacion <- Distrito %>%
   group_by_at(c(as.character(groups(Distrito)))) %>%
   ungroup() %>%
   select(matches("Participacion"))
-Parti_every = melt(Participacion, id.vars = NULL)
+Parti_every = na.omit(melt(Participacion, id.vars = NULL))
 
 # Graph last six elections
 ggplot(data=Parti_every, aes(x=value, group=variable, fill=variable)) +
@@ -669,7 +674,7 @@ Participacion <- Distrito %>%
   select(matches("Seccion") | matches("Participacion"))
 
 # Calculate historic participation rate averaging each section
-Participacion$Media <- round(as.numeric(rowMeans(Participacion[,4:8])),2)
+Participacion$Media <- round(as.numeric( rowMeans(Participacion[,4:8], na.rm = TRUE) ), 2)
 
 # Plot overall participation rate distribution
 ggplot(data=Participacion, aes(x=Media, fill="red")) +
@@ -718,12 +723,16 @@ for (Categoria in unique(Mapa_participacion_promedio$Tendencia)) {
 #
 Distrito_resultados <- lapply(SECCIONES,function(x) {
   votos <- x[x$Seccion %in% Distrito$Seccion,][,4:(ncol(x[x$Seccion %in% Distrito$Seccion,])-6)]
+  total_votos <- x[x$Seccion %in% Distrito$Seccion,][,"Total_Votos"]
   lista_nominal <- x[x$Seccion %in% Distrito$Seccion,][,"Lista_Nominal"]
-  
-  votos <- summarise_all(votos, sum)
+
+  total_votos <- summarise_all(total_votos, sum)
   lista_nominal <- summarise_all(lista_nominal, sum)
   
+  votos <- summarise_all(votos, sum)
+  votos[,"Total_Votos"] <- total_votos
   votos[,"Lista_Nominal"] <- lista_nominal
+  
   votos[2,] <-  (votos/ t(votos[,"Lista_Nominal"])) * 100
   
   votos[1,] <- round(votos[1,],0)
@@ -763,4 +772,3 @@ remove(Ayuntamiento, Diputados, Secciones)
 
 # ====================================================================================================
 # ====================================================================================================
-

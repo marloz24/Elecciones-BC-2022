@@ -412,6 +412,8 @@ for (i in seq_along(HISTORICOS_GANADORES_COMPLETE)){
 # Through a small classification algorithm, tendencia() classifies secciones based on election results
 tendencia <- function(base) {
   # Take winners_votes historical table
+  base <- base[which(base$Distrito_2021 == "10"), ]
+  
   df <- base
   df <- df[grepl("Ganador", names(df))] 
 
@@ -424,11 +426,11 @@ tendencia <- function(base) {
   
   #
   occurrence <- occurrence %>% mutate(PAN = case_when(Va_por_Mexico >= 1 ~ (PAN + Va_por_Mexico),
-                                                      TRUE ~ 0),
+                                                        TRUE ~ PAN),
                                       PRI = case_when(Va_por_Mexico >= 1 ~ (PRI + Va_por_Mexico),
-                                                      TRUE ~ 0),
+                                                      TRUE ~ PRI),
                                       PRD = case_when(Va_por_Mexico >= 1 ~ (PRD + Va_por_Mexico),
-                                                      TRUE ~ 0)) 
+                                                      TRUE ~ PRD))
   
   # Find party with most victories and number of victories
   party <- colnames(occurrence)[max.col(occurrence,ties.method = ("first"))]
@@ -442,8 +444,8 @@ tendencia <- function(base) {
                                  victories <= 3 ~ "Alternancia",
     ))
   
-  df <- data.frame(base[,1:3], party_victories$Tendencia)
-  colnames(df) <- c("Municipio", "Distrito", "Seccion", "Tendencia")
+  df <- data.frame(base[,1:2], party_victories$Tendencia)
+  colnames(df) <- c("Distrito", "Seccion", "Tendencia")
   return(df)
 }
 
@@ -453,9 +455,6 @@ Tendencia_Voto <- (lapply(HISTORICOS_GANADORES_COMPLETE, tendencia))
 # ====================================================================================================
 # ====================================================================================================
 
-
-# base <- Listado
-# columnas <- "Lista_Nominal"
 
 # We create basic_stats() function before our analysis since will be using it quite frequently
 basic_stats <- function(base, columnas) {
@@ -503,14 +502,11 @@ Mapa_Secciones <- st_read("Secciones.shp")
 colnames(Mapa_Secciones)[1] <- "Seccion"
 
 
-
-# ====================================================================================================
-# ====================================================================================================
-# ====================================================================================================
-# ====================================================================================================
-# ====================================================================================================
-# ====================================================================================================
-
+# ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS
+# ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS
+# ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS
+# ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS
+# ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS ========== ANALISIS
 
 
 # Return to primary folder
@@ -522,20 +518,24 @@ setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
 
 # This is our key Dataframe, here we susbset all information for a given district
 Distrito <- HISTORICOS[["Diputados"]][which(HISTORICOS$Diputados$Distrito_2021 == "10"), ]
+Mapa_Secciones <- Mapa_Secciones[Mapa_Secciones$Seccion %in% Distrito$Seccion,]
 
-# We obtain total electoral population
+# We also subset for entire city of Tijuana
 Tijuana <- HISTORICOS[["Diputados"]][which(HISTORICOS$Diputados$Municipio_2021 == "TIJUANA"), ]
 
-# City, district population and portion of city
+# City and district population, and whats the portion from city
 Listado_Distrito <- sum(Distrito$Lista_Nominal_2021)
 Listado_Ciudad <- sum(Tijuana$Lista_Nominal_2021, na.rm = TRUE)
 Dis_Listado_Municipio <- (Listado_Distrito / Listado_Ciudad) * 100
+Listado_Ciudad
+Listado_Distrito
 Dis_Listado_Municipio
 
 # Seccion in city, district population and portion of city
 Secciones_Distrito <- sum(!is.na(Distrito$Lista_Nominal_2021))
 Secciones_Ciudad <- sum(!is.na(Tijuana$Lista_Nominal_2021), na.rm = TRUE)
 Dis_Secciones_Municipio <- (Secciones_Distrito / Secciones_Ciudad) * 100
+Secciones_Distrito
 Dis_Secciones_Municipio
 
 # See if Sections numbers has change over time
@@ -581,7 +581,7 @@ INEGI <- municipalities_name(INEGI)
 INEGI <- INEGI[INEGI$SECCION %in% unique(Distrito$Seccion), ]
 
 # Create District and Seccions demographic data frame
-INEGI_Pre_Secciones <- data.frame(SECCION <- INEGI$SECCION,
+INEGI_Pre_Secciones <- data.frame(Seccion <- INEGI$SECCION,
                                   Hombres <- INEGI$POBMAS,
                                   Mujeres <- INEGI$POBFEM,
                                   Poblacion <- Hombres + Mujeres,
@@ -605,48 +605,303 @@ INEGI_Pre_Secciones <- data.frame(SECCION <- INEGI$SECCION,
                                   Viviendas <- INEGI$TOTHOG
                                   )
 
-remove(SECCION, Hombres, Mujeres, Poblacion, P0a4, P18a24, P65MAS, P25a64, P5a17, Salud, Edad_ocupada, Ocupada,
-       Edad_estudiar, Estudian, Años_Educacion, ViviendasF, Viviendas)
-
 # Create dataframe for overall district results
 INEGI_Secciones <- INEGI_Pre_Secciones
 
-# Rename District and Secciones columns
-colnames(INEGI_Secciones) <- c("SECCION", "Hombres", "Mujeres", "Poblacion", "P0a4", "P18a24", "P65MAS", "P25a64", "P5a17",
+# Rename columns
+colnames(INEGI_Secciones) <- c("Seccion", "Hombres", "Mujeres", "Poblacion", "P0a4", "P18a24", "P65MAS", "P25a64", "P5a17",
                                "Salud", "Edad_ocupada", "Ocupada", "Edad_estudiar", "Estudian", "Años_Educacion",
                                "ViviendasF", "Viviendas")
 
-# 
+# Calculate needed columns for Secciones
 INEGI_Secciones$ViviendasF <- round( (INEGI_Secciones$ViviendasF / INEGI_Secciones$Viviendas) * 100,2 )
 INEGI_Secciones$Estudian <- round( (INEGI_Secciones$Estudian / INEGI_Secciones$Edad_estudiar) * 100, 2)
 INEGI_Secciones$Salud <- round( (INEGI_Secciones$Salud / INEGI_Secciones$Poblacion) * 100, 2)
 INEGI_Secciones$Ocupada <- round( (INEGI_Secciones$Ocupada / INEGI_Secciones$Edad_ocupada) * 100, 2)
 
-#
-INEGI_Secciones <- INEGI_Secciones[, c("SECCION", "Hombres", "Mujeres", "Poblacion",
+# Re-order columns
+INEGI_Secciones <- INEGI_Secciones[, c("Seccion", "Hombres", "Mujeres", "Poblacion",
                                      "P0a4", "P5a17", "P18a24", "P25a64", "P65MAS",
                                      "Salud", "Edad_ocupada", "Ocupada", "Edad_estudiar", "Estudian", 
                                      "Años_Educacion", "Viviendas", "ViviendasF")]
 
-#
+# Calculate summarise columns for Distrito and rename columns
 INEGI_Distrito <- summarise_all(INEGI_Pre_Secciones[,2:ncol(INEGI_Pre_Secciones)], sum)
 colnames(INEGI_Distrito) <- c("Hombres", "Mujeres", "Poblacion", "P0a4", "P18a24", "P65MAS", "P25a64", "P5a17",
                               "Salud", "Edad_ocupada", "Ocupada", "Edad_estudiar", "Estudian", "Años_Educacion",
                               "ViviendasF", "Viviendas")
 
-#
+# Re-order columns
 INEGI_Distrito <- INEGI_Distrito[, c("Hombres", "Mujeres", "Poblacion",
                                      "P0a4", "P5a17", "P18a24", "P25a64", "P65MAS",
                                      "Salud", "Edad_ocupada", "Ocupada", "Edad_estudiar", "Estudian", 
                                      "Años_Educacion", "Viviendas", "ViviendasF")]
 
-colnames(INEGI_Distrito)
-#
+# Calculate needed columns for Distrito
 INEGI_Distrito[2,c(1:10,12)] <- round( (INEGI_Distrito[1,c(1:10,12)]/INEGI_Distrito$Poblacion) *100, 2)
 INEGI_Distrito[2,15] <- INEGI_Distrito[1,"Viviendas"]
 
+# Ocupada, Estudian, Vivienda y Años educación
 INEGI_Distrito[2,11] <- paste(as.character( round((INEGI_Distrito[1,11]/INEGI_Distrito[1,10])*100, 2) ), "*")
 INEGI_Distrito[2,13] <- paste(as.character( round((INEGI_Distrito[1,13]/INEGI_Distrito[1,12])*100, 2) ), "*")
 INEGI_Distrito[2,16] <- paste(as.character( round((INEGI_Distrito[1,16]/INEGI_Distrito[1,15])*100, 2) ), "*")
-
 INEGI_Distrito[,14] <-  paste(as.character( round(median(INEGI_Secciones$Años_Educacion),2) ), "*")
+INEGI_Distrito
+
+mean(INEGI_Secciones$Salud)
+
+
+remove(Seccion, Hombres, Mujeres, Poblacion, P0a4, P18a24, P65MAS, P25a64, P5a17, Salud, Edad_ocupada, Ocupada,
+       Edad_estudiar, Estudian, Años_Educacion, ViviendasF, Viviendas, INEGI_Pre_Secciones)
+
+# We would like to map some indices, e.g women as heads of household, for that we create Mapa_INEGI
+Mapa_INEGI <- merge(x = Mapa_Secciones, y = INEGI_Secciones, 
+                          by = "Seccion", all.y = TRUE)
+
+# Prepare data to graph indices
+INEGI_grafica <- INEGI_Secciones[,c("Salud", "Ocupada", "ViviendasF")]
+INEGI_grafica = na.omit(melt(INEGI_grafica, id.vars = NULL))
+
+# Graph indices
+ggplot(data=INEGI_grafica, aes(x=value, group=variable, fill=variable)) +
+  geom_density(kernel = "gaussian", adjust=1.5, alpha=0.4) +
+  labs(x = "% de población", y = "Probabilidad") + theme(plot.title = element_text(size=22)) +
+  facet_wrap(~fct_rev(variable), ncol = 1) +
+  theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
+  scale_x_continuous(breaks = seq(0, 100, by = 10))
+
+# Create a 3-way categorical variable for women as head of household
+Mapa_INEGI$ViviendasF_Clas <- cut(x = as.numeric(Mapa_INEGI$ViviendasF),
+                                  # Remember we can set 3 to use more homogeneous groups
+                                  breaks = quantile(Mapa_INEGI$ViviendasF, 
+                                            probs = c(seq(from = 0, to = 1, by = 1/3))),
+                                  include.lowest = TRUE,
+                                  labels = c("Poca", "Media", "Alta"))
+
+# And map it
+for (Categoria in unique(Mapa_INEGI$ViviendasF_Clas)) {
+  mapa <- subset(Mapa_INEGI, Mapa_INEGI$ViviendasF_Clas == Categoria)
+  
+  plotKML(obj = mapa,
+          file.name = paste(Categoria, ".kml", sep=""),
+          folder.name = Categoria,
+          plot.labpt = FALSE)
+  remove(mapa)
+}
+
+# Create a 3-way categorical variable for occupational rate
+Mapa_INEGI$Ocupada_Clas <- cut(x = as.numeric(Mapa_INEGI$Ocupada),
+                                  # Remember we can set 3 to use more homogeneous groups
+                                  breaks = quantile(Mapa_INEGI$Ocupada, 
+                                                    probs = c(seq(from = 0, to = 1, by = 1/3))),
+                                  include.lowest = TRUE,
+                                  labels = c("Poca", "Media", "Alta"))
+
+# Map it
+for (Categoria in unique(Mapa_INEGI$Ocupada_Clas)) {
+  mapa <- subset(Mapa_INEGI, Mapa_INEGI$Ocupada_Clas == Categoria)
+  
+  plotKML(obj = mapa,
+          file.name = paste(Categoria, ".kml", sep=""),
+          folder.name = Categoria,
+          plot.labpt = FALSE)
+  remove(mapa)
+}
+
+# Create a 3-way categorical variable for salud
+Mapa_INEGI$Salud_Clas <- cut(x = as.numeric(Mapa_INEGI$Salud),
+                               # Remember we can set 3 to use more homogeneous groups
+                               breaks = quantile(Mapa_INEGI$Salud, 
+                                                 probs = c(seq(from = 0, to = 1, by = 1/3))),
+                               include.lowest = TRUE,
+                               labels = c("Poca", "Media", "Alta"))
+
+# And map it
+for (Categoria in unique(Mapa_INEGI$Salud_Clas)) {
+  mapa <- subset(Mapa_INEGI, Mapa_INEGI$Salud_Clas == Categoria)
+  
+  plotKML(obj = mapa,
+          file.name = paste(Categoria, ".kml", sep=""),
+          folder.name = Categoria,
+          plot.labpt = FALSE)
+  remove(mapa)
+}
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# Now, we will analyze Participation rates for that we go back to main folder
+setwd("C:/Users/marti/OneDrive/Escritorio/Elecciones BC")
+
+# See Participation stats over time
+Participacion_descriptivo <- basic_stats(base = Distrito, "Participacion")
+Participacion_descriptivo
+
+# Prepare data to graph Participation in the last six elections
+Participacion <- Distrito %>%
+  group_by_at(c(as.character(groups(Distrito)))) %>%
+  ungroup() %>%
+  select(matches("Participacion"))
+Parti_every = na.omit(melt(Participacion, id.vars = NULL))
+
+# Graph last six elections
+ggplot(data=Parti_every, aes(x=value, group=variable, fill=variable)) +
+  geom_density(kernel = "gaussian", adjust=1.5, alpha=0.4) +
+  labs(x = "% de participacion", y = "Probabilidad") + theme(plot.title = element_text(size=22)) +
+  facet_wrap(~fct_rev(variable), ncol = 2) +
+  theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
+  scale_x_continuous(breaks = round(seq(min(Parti_every$value), max(Parti_every$value), by = 10),1))
+
+# Create Participation table adding Municipality, District and Section
+Participacion <- Distrito %>%
+  select(matches("Seccion") | matches("Participacion"))
+
+# Calculate historic participation rate averaging each section
+Participacion$Media <- round(as.numeric( rowMeans(Participacion[,4:8], na.rm = TRUE) ), 2)
+
+# Plot overall participation rate distribution
+ggplot(data=Participacion, aes(x=Media, fill="red")) +
+  geom_density(kernel = "gaussian", adjust=1.5, alpha=0.4) +
+  labs(x = "% de participacion", y = "Probabilidad",
+       title ="Participacion promedio 2010-21") + theme(plot.title = element_text(size=22)) +
+  theme(legend.position="none", panel.spacing = unit(0.1, "lines"), axis.ticks.x=element_blank()) +
+  scale_x_continuous(breaks = round(seq(min(Participacion$Media), max(Participacion$Media), by = 5),1))
+
+remove(Parti_every)
+
+# 
+Participacion[,10] <- cut(x = as.numeric(unlist(Participacion[,9])),
+                          # Remember we can set 3 to use more homogeneous groups
+                          breaks = quantile(Participacion$Media, 
+                                            probs = c(seq(from = 0, to = 1, by = 1/3))),
+                          include.lowest = TRUE,
+                          labels = c("Poca", "Media", "Alta"))
+colnames(Participacion)[10] <- "Tendencia"
+
+# Create Participation map
+Mapa_Participacion <- merge(x = Mapa_Secciones, y = Participacion[,c(3:10)],
+                             by = "Seccion", all.y = TRUE)
+
+# Plot map
+for (Categoria in unique(Mapa_Participacion$Tendencia)) {
+  mapa <- subset(Mapa_Participacion, Mapa_Participacion$Tendencia == Categoria)
+  
+  plotKML(obj = mapa,
+          file.name = paste(Categoria, ".kml", sep=""),
+          folder.name = Categoria,
+          plot.labpt = FALSE)
+  remove(mapa)
+}
+
+# plotKML(obj = Mapa_Participacion[,7],
+#         colour_scale = c("firebrick1","yellow","orange","green2"),
+#         alpha = 1,
+#         folder.name = "Mapa Participacion",
+#         file.name = paste("Mapa Participacion", ".kml", sep=""),
+#         plot.labpt = FALSE)
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# Now, we are in mapping how different sections vote based on historical trend
+Tendencia_Voto <- Tendencia_Voto$Diputados[Tendencia_Voto$Diputados$Seccion %in% Distrito$Seccion,]
+Tendencia_Voto <- merge(x = Mapa_Secciones, y = Tendencia_Voto, 
+                        by = "Seccion", all.y = TRUE)
+
+Tendencia_Tabla <- table(Tendencia_Voto$Tendencia)
+
+# Plot map
+for (Tend in unique(Tendencia_Voto$Tendencia)) {
+  mapa <- subset(Tendencia_Voto, Tendencia_Voto$Tendencia == Tend)
+
+  plotKML(obj = mapa,
+          file.name = paste(Tend, ".kml", sep=""),
+          folder.name = Tend,
+          plot.labpt = FALSE)
+  remove(mapa, Tend)
+}
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+# Now we are interested in mapping voting trends based on the last 5 elections
+Mapa_Tendencia <- HISTORICOS_GANADORES$Diputados[HISTORICOS_GANADORES$Diputados$Seccion %in% 
+                                                     Distrito$Seccion,]
+Mapa_Tendencia <- merge(x = Mapa_Secciones, y = Mapa_Tendencia, 
+                        by = "Seccion", all.y = TRUE)
+
+# After 
+for (Ganador in unique(Mapa_Tendencia$Ganador_2021)) { 
+  mapa <- subset(Mapa_Tendencia, Mapa_Tendencia$Ganador_2021 == Ganador)
+  
+  plotKML(obj = mapa,
+          file.name = paste(Ganador, ".kml", sep=""),
+          folder.name = Ganador,
+          plot.labpt = FALSE)
+  remove(mapa, Ganador, Categoria)
+}
+remove(Ganador, )
+
+# ====================================================================================================
+# ====================================================================================================
+
+#
+Resultados_distrito <- lapply(SECCIONES,function(x) {
+  #x <- SECCIONES$Diputados_2010
+  votos <- x[x$Seccion %in% Distrito$Seccion,][,4:(ncol(x[x$Seccion %in% Distrito$Seccion,])-4)]
+  total_votos <- x[x$Seccion %in% Distrito$Seccion,][,"Total_Votos"]
+  lista_nominal <- x[x$Seccion %in% Distrito$Seccion,][,"Lista_Nominal"]
+
+  votos <- votos %>%
+    select(-starts_with("Pre"))
+
+  votos <- summarise_all(votos, sum)
+  total_votos <- summarise_all(total_votos, sum)
+  lista_nominal <- summarise_all(lista_nominal, sum)
+
+  votos[,"Total_Votos"] <- total_votos
+  votos[,"Lista_Nominal"] <- lista_nominal
+  
+  votos[2,] <-  (votos/ t(votos[,"Lista_Nominal"])) * 100 #Proporciones / Listado Nominal
+  
+  votos[1,] <- round(votos[1,],0)
+  votos[2,] <- round(votos[2,],2)
+  
+  return(votos)
+})
+
+
+# ====================================================================================================
+# ====================================================================================================
+
+
+Ayuntamiento <- HISTORICOS_GANADORES_COMPLETE[[("Ayuntamiento")]][HISTORICOS_GANADORES_COMPLETE$Ayuntamiento$Seccion %in% 
+                                                                    (Distrito$Seccion), ]
+Diputados <- HISTORICOS_GANADORES_COMPLETE[[("Diputados")]][HISTORICOS_GANADORES_COMPLETE$Diputados$Seccion %in% 
+                                                                    (Distrito$Seccion), ]
+
+Secciones <- Ayuntamiento$Seccion
+
+Ayuntamiento <- Ayuntamiento[grepl("Ganador", names(Ayuntamiento))]
+Diputados <- Diputados[grepl("Ganador", names(Diputados))]
+
+Parejo_Cruzado <- as.data.frame(Ayuntamiento == Diputados)
+Parejo_Cruzado$Count <- rowSums(Parejo_Cruzado == TRUE)
+
+Parejo_Cruzado <- Parejo_Cruzado %>% 
+  mutate(Parejo_Cruzado = case_when(Count >= 3 ~ "Parejo",
+                                    Count <= 2 ~ "Cruzado",
+                                    TRUE ~ as.character(Count)))
+
+Parejo_Cruzado <- data.frame(Secciones, Parejo_Cruzado)
+Parejo_Cruzado_tabla <- as.data.frame(table(Parejo_Cruzado$Parejo_Cruzado))
+
+remove(Ayuntamiento, Diputados, Secciones)
+
+# ====================================================================================================
+# ====================================================================================================
